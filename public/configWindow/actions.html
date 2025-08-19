@@ -2,29 +2,29 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Voices of the Court</title>
+    <title>Voice of the court 汉化版</title>
     <link rel="stylesheet" href="config.css" />
     
   </head>
   <body>
     <div class="navbar">
       <ul>
-        <li><a href="connection.html">Connection</a></li>
-        <li class="active"><a href="actions.html">Actions</a></li>
-        <li><a href="summarization.html">Summarization</a></li>
-        <li><a href="prompts.html">Prompts</a></li>
-        <li><a href="settings.html">Settings</a></li>
-        <li><a href="system.html">System</a></li>
+        <li><a href="connection.html">对话模型连接</a></li>
+        <li class="active"><a href="actions.html">动作</a></li>
+        <li><a href="summarization.html">总结</a></li>
+        <li><a href="prompts.html">提示词</a></li>
+        <li><a href="settings.html">设置</a></li>
+        <li><a href="system.html">系统</a></li>
       </ul> 
     </div>
 
     <div class="container" id="container">
       
-      <config-checkbox id="enable-actions" confID="actionsEnableAll" label="Enable actions"></config-checkbox>
+      <config-checkbox id="enable-actions" confID="actionsEnableAll" label="启用动作"></config-checkbox>
       
       <div id="actions" class="border">
 
-        <config-checkbox id="use-connection-api" confID="actionsUseTextGenApi" label="Use the same API as in the connection tab"></config-checkbox>
+        <config-checkbox id="use-connection-api" confID="actionsUseTextGenApi" label="使用与对话相同的API"></config-checkbox>
 
         <hr>
 
@@ -32,16 +32,16 @@
         
         <hr>
 
-        <h2>Parameters</h2>
+        <h2>参数</h2>
         <parameters-box confID="actionsApiConnectionConfig" tempDefault="0.2" freqPenDefault ="0" presPenDefault="0" topPDefault="0.9"></parameters-box>
 
         <hr>
 
-        <p>Select which actions you want the mod to detect:</p>
+        <p>选择你希望模组检测的动作：</p>
 
         <div class="input-group">
-          <button type="button" id="refresh-actions">🔄 Reload files</button>
-          <open-folder-button path="scripts/actions/" label="open folder"></open-folder-button>
+          <button type="button" id="refresh-actions">🔄 重新加载文件</button>
+          <open-folder-button path="scripts/actions/" label="打开文件夹"></open-folder-button>
         </div>
         
             <div id="actions-group">

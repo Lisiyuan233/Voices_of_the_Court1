@@ -2,19 +2,19 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Voices of the Court</title>
+    <title>Voice of the court 汉化版</title>
     <link rel="stylesheet" href="config.css" />
     
   </head>
   <body>
     <div class="navbar">
       <ul>
-        <li><a href="connection.html">Connection</a></li>
-        <li><a href="actions.html">Actions</a></li>
-        <li><a href="summarization.html">Summarization</a></li>
-        <li class="active"><a href="prompts.html">Prompts</a></li>
-        <li ><a href="settings.html">Settings</a></li>
-        <li><a href="system.html">System</a></li>
+        <li><a href="connection.html">对话模型连接</a></li>
+        <li><a href="actions.html">动作</a></li>
+        <li><a href="summarization.html">总结</a></li>
+        <li class="active"><a href="prompts.html">提示词</a></li>
+        <li ><a href="settings.html">设置</a></li>
+        <li><a href="system.html">系统</a></li>
       </ul> 
     </div>
 
@@ -22,27 +22,27 @@
         <div class="row">
             <div class="column">
 
-                <h2>Prompts</h2>
+                <h2>提示词</h2>
 
                 <div class="border" id="prompt-options">
                     
                     <div class="input-group">
-                        Main prompt
+                        主要提示词
                         <config-textarea confID="mainPrompt" rows="6"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                      Summarize prompt
+                      总结提示词
                       <config-textarea confID="summarizePrompt" rows="6"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                      Memories prompt
+                      记忆提示词
                       <config-textarea confID="memoriesPrompt" rows="2"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                        <config-checkbox id="suffix-prompt-checkbox" confID="enableSuffixPrompt" label="Suffix prompt"></config-checkbox> <tooltip-text side="top">If enabled, suffix prompt is inserted as the last (system) message before sending the API request, it's useful for jailbreaking, or instructing the model on how to format the response message.</tooltip-text>
+                        <config-checkbox id="suffix-prompt-checkbox" confID="enableSuffixPrompt" label="后缀提示词"></config-checkbox> <tooltip-text side="top">如果启用，后缀提示词将作为最后一条（系统）消息插入到发送API请求之前。</tooltip-text>
                         <config-textarea id="suffix-prompt-textarea" confID="suffixPrompt" rows="6"></config-textarea> 
                     </div>
                 </div>
@@ -51,22 +51,22 @@
             <div class="column">
 
               <br></br>
-                <h2 style="display: inline;">Scripts</h2> <tooltip-text side="bottom">Some prompts are too advanced to be made up by static texts, they require script files that dynamically writes the prompts based on the ingame variables.</tooltip-text>
+                <h2 style="display: inline;">脚本</h2> <tooltip-text side="bottom">有些提示词过于复杂，无法用静态文本编写，它们需要脚本文件根据游戏内变量动态生成提示词。</tooltip-text>
                 <br></br>
                 <div id="script-selectors" class="border">
       
                   <div class="input-group">
-                    <button type="button">🔄 Reload files</button>
+                    <button type="button">🔄 重新加载文件</button>
                   </div>
                   
                   <div class="input-group">
-                    <label for="description-script-select">Character Description script</label>
+                    <label for="description-script-select">角色描述脚本</label>
                     <select id="description-script-select"></select>
-                    <open-folder-button path="scripts/prompts/description/" label="open folder"></open-folder-button>
+                    <open-folder-button path="scripts/prompts/description/" label="打开文件夹"></open-folder-button>
                   </div>
       
                   <div class="input-group">
-                    <label for="example-messages-script-select">Example messages script</label>
+                    <label for="example-messages-script-select">示例消息脚本</label>
                     <select id="example-messages-script-select">
                       
                     </select>

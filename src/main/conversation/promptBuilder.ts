@@ -104,8 +104,25 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
 
         conv.summaries.reverse();
 
+        // 解析中文日期格式的辅助函数
+        function parseChineseDate(dateStr: string): Date {
+            const match = dateStr.match(/(\d+)年\s*(\d+)月\s*(\d+)日/);
+            if (match) {
+                const year = parseInt(match[1]);
+                const month = parseInt(match[2]) - 1; // 月份从0开始
+                const day = parseInt(match[3]);
+                return new Date(year, month, day);
+            }
+            return new Date(); // 解析失败时返回当前日期
+        }
+
         for(let summary of conv.summaries){
-            summaryString += `${summary.date} (${getDateDifference(summary.date, conv.gameData.date)}): ${summary.content}\n`;
+            // 只添加日期不晚于当前游戏日期的总结.Only add summaries with a date no later than the current game date.
+            // if English,↓            if(new Date(summary.date) <= new Date(conv.gameData.date)){
+            if(parseChineseDate(summary.date) <= parseChineseDate(conv.gameData.date)){
+                summaryString += `${summary.date} (${getDateDifference(summary.date, conv.gameData.date)}): ${summary.content}
+`;
+            }
         }
 
         conv.summaries.reverse();
@@ -220,48 +237,44 @@ function insertMessageAtDepth(messages: Message[], messageToInsert: Message, ins
 }
 
 function getDateDifference(pastDate: string, todayDate: string): string{
+    // 解析中文日期格式
+    function parseDate(dateStr: string) {
+        const match = dateStr.match(/(\d+)年\s*(\d+)月\s*(\d+)日/);
+        if (match) {
+            return {
+                year: parseInt(match[1]),
+                month: parseInt(match[2]) - 1, // 月份从0开始
+                day: parseInt(match[3])
+            };
+        }
+        return {
+            year: 0,
+            month: 0,
+            day: 0
+        };
+    }
 
-    const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ];
+    const past = parseDate(pastDate);
+    const today = parseDate(todayDate);
 
-      const past = {
-        day: Number(pastDate.split(" ")[0]),
-        month: months.indexOf(pastDate.split(" ")[1]),
-        year: Number(pastDate.split(" ")[2])
-      }
+    // 计算日期差异（以天为单位）
+    const pastDateObj = new Date(past.year, past.month, past.day);
+    const todayDateObj = new Date(today.year, today.month, today.day);
+    const timeDiff = todayDateObj.getTime() - pastDateObj.getTime();
+    const totalDays = Math.floor(timeDiff / (1000 * 3600 * 24));
 
-      const today = {
-        day: Number(todayDate.split(" ")[0]),
-        month: months.indexOf(todayDate.split(" ")[1]),
-        year: Number(todayDate.split(" ")[2])
-      }
-
-      let totalDays = (today.year - past.year) * 365 + (today.month - past.month) * 30 + (today.day - past.day);
-
-      if(totalDays > 365){
+    if(totalDays > 365){
         return Math.round(totalDays/365) + " years ago"
-      }
-      else if(totalDays >= 30){
+    }
+    else if(totalDays >= 30){
         return Math.round(totalDays/30) + " months ago"
-      }
-      else if(totalDays > 0){
+    }
+    else if(totalDays > 0){
         return totalDays + " days ago"
-      }
-      else{
+    }
+    else{
         return "today"
-      }
+    }
 }
 
 

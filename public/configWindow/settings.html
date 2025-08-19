@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Voices of the Court</title>
+  <title>Voice of the court 汉化版</title>
   <link rel="stylesheet" href="config.css" />
 
   
@@ -13,12 +13,12 @@
 <body>
   <div class="navbar">
     <ul>
-      <li><a href="connection.html">Connection</a></li>
-      <li><a href="actions.html">Actions</a></li>
-      <li><a href="summarization.html">Summarization</a></li>
-      <li><a href="prompts.html">Prompts</a></li>
-      <li class="active"><a href="settings.html">Settings</a></li>
-      <li><a href="system.html">System</a></li>
+      <li><a href="connection.html">对话模型连接</a></li>
+      <li><a href="actions.html">动作</a></li>
+      <li><a href="summarization.html">总结</a></li>
+      <li><a href="prompts.html">提示词</a></li>
+      <li class="active"><a href="settings.html">设置</a></li>
+      <li><a href="system.html">系统</a></li>
     </ul>
   </div>
 
@@ -27,16 +27,16 @@
     <div class="row">
       <div class="column">
 
-        <h2>Settings</h2>
+        <h2>设置</h2>
 
         <div class="border">
           <div class="input-group">
             <div class="row">
               <div class="column">
-                <config-number confID="maxTokens" label="max new tokens" min="0" max="4084"></config-number>
+                <config-number confID="maxTokens" label="最大新令牌数" min="0" max="4084"></config-number>
               </div>
               <div class="column">
-                <config-number confID="maxMemoryTokens" label="max memory tokens" min="0" max="4084"></config-number>
+                <config-number confID="maxMemoryTokens" label="最大记忆令牌数" min="0" max="4084"></config-number>
               </div>
             </div>
             
@@ -44,41 +44,41 @@
 
             <div class="row">
               <div class="column">
-                <config-checkbox confID="stream" label="stream messages"></config-checkbox>
+                <config-checkbox confID="stream" label="流式消息"></config-checkbox>
               </div>
 
               <div class="column">
-                <config-checkbox confID="cleanMessages" label="clean Messages"></config-checkbox> <tooltip-text side="top">The mod will try to remove parts of the messages that the llm shouldn't have generated, like emojis </tooltip-text>
+                <config-checkbox confID="cleanMessages" label="清理消息"></config-checkbox> <tooltip-text side="top">模组将尝试移除LLM不应生成的消息部分，例如表情符号 </tooltip-text>
               </div>
             </div>
             <hr>
             <div class="row">
               <div class="column">
-                <config-number confID="summariesInsertDepth" label="Summaries insert depth" min="0" max="20"></config-number>
+                <config-number confID="summariesInsertDepth" label="总结插入深度" min="0" max="20"></config-number>
               </div>
               <div class="column">
-                <config-number confID="memoriesInsertDepth" label="Memories insert depth" min="0" max="20"></config-number>
+                <config-number confID="memoriesInsertDepth" label="记忆插入深度" min="0" max="20"></config-number>
               </div>
             </div>
             <div class="row">
               <div class="column">
-                <config-number confID="descInsertDepth" label="Char desc insert depth" min="0" max="20"></config-number>
+                <config-number confID="descInsertDepth" label="角色描述插入深度" min="0" max="20"></config-number>
               </div>
             </div>
           </div>  
         </div>
         <br>
 
-        <h2>Instruct settings</h2>
+        <h2>指令设置</h2>
 
         <div class="border">
           
           <div class="row">
             <div class="column">
-              <config-text confID="inputSequence" label="Input sequence"></config-text>
+              <config-text confID="inputSequence" label="输入序列"></config-text>
             </div>
             <div class="column">
-              <config-text confID="outputSequence" label="output sequence"></config-text>
+              <config-text confID="outputSequence" label="输出序列"></config-text>
             </div>
           </div>
 
@@ -87,7 +87,7 @@
       </div>
       <div class="column">
 
-        <h2>Text-generation parameters</h2>
+        <h2>文本生成参数</h2>
 
         
 
