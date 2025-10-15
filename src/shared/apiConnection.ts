@@ -31,7 +31,7 @@ let encoder = tiktoken.getEncoding("cl100k_base");
 
 export class ApiConnection{
     type: string; //openrouter, openai, ooba, custom
-    client: OpenAI;
+    client: any;
     model: string;
     forceInstruct: boolean ;//only used by openrouter
     parameters: Parameters;
@@ -40,16 +40,27 @@ export class ApiConnection{
     
 
     constructor(connection: Connection, parameters: Parameters){
+        console.debug("--- API CONNECTION: Constructor ---");
+        const redactedConnection = { ...connection, key: '[REDACTED]' };
+        console.debug("Received connection:", redactedConnection);
+        console.debug("Received parameters:", parameters);
         this.type = connection.type;
-        this.client = new OpenAI({
-            baseURL: connection.baseUrl,
-            apiKey: connection.key,
-            dangerouslyAllowBrowser: true,
-            defaultHeaders: {
-                "HTTP-Referer": "https://github.com/Demeter29/Voices_of_the_Court", // Optional, for including your app on openrouter.ai rankings.
-                "X-Title": "Voices of the Court", // Optional. Shows in rankings on openrouter.ai.
-              }
-        })
+        if(this.type !== 'gemini'){
+            this.client = new OpenAI({
+                baseURL: connection.baseUrl,
+                apiKey: connection.key,
+                dangerouslyAllowBrowser: true,
+                defaultHeaders: {
+                    "HTTP-Referer": "https://github.com/Demeter29/Voices_of_the_Court", // Optional, for including your app on openrouter.ai rankings.
+                    "X-Title": "Voices of the Court", // Optional. Shows in rankings on openrouter.ai.
+                  }
+            })
+        }else{
+            this.client = {
+                apiKey: connection.key,
+                baseURL: connection.baseUrl
+            }
+        }
         this.model = connection.model;
         this.forceInstruct = connection.forceInstruct;
         this.parameters = parameters;
@@ -61,7 +72,7 @@ export class ApiConnection{
         }
 
         if(connection.overwriteContext){
-            console.log("Overwriting context size!");
+            console.debug("Overwriting context size!");
             this.context = connection.customContext;
             this.overwriteWarning = false;
         }
@@ -70,17 +81,33 @@ export class ApiConnection{
             this.overwriteWarning = false;
         }
         else{
-            console.log(`Warning: couldn't find ${this.model}'s context limit. context overwrite value will be used!`);
+            console.debug(`Warning: couldn't find ${this.model}'s context limit. context overwrite value will be used!`);
             this.context = connection.customContext;
             this.overwriteWarning = true;
         }
+        const loggableThis = {
+            type: this.type,
+            client: {
+                baseURL: this.client.baseURL,
+                apiKey: '[REDACTED]'
+            },
+            model: this.model,
+            forceInstruct: this.forceInstruct,
+            parameters: this.parameters,
+            context: this.context,
+            overwriteWarning: this.overwriteWarning,
+        };
+        console.debug("Constructed ApiConnection object:", loggableThis);
     }
 
     isChat(): boolean {
-        if(this.type === "openai" || (this.type === "openrouter" && !this.forceInstruct ) || this.type === "other"){
+        console.debug(`--- API CONNECTION: isChat() check. Type: ${this.type}, forceInstruct: ${this.forceInstruct}`);
+        if(this.type === "openai" || (this.type === "openrouter" && !this.forceInstruct ) || this.type === "custom" || this.type === 'gemini'){
+            console.debug("isChat() is returning true");
             return true;
         }
         else{
+            console.debug("isChat() is returning false");
             return false;
         }
     
@@ -92,6 +119,9 @@ export class ApiConnection{
         otherArgs: object,
         streamRelay?: (arg1: MessageChunk) => void
     ): Promise<string> {
+        console.debug("--- API CONNECTION: complete() ---");
+        console.debug("Prompt:", prompt);
+        console.debug(`Stream: ${stream}, otherArgs:`, otherArgs);
         const MAX_RETRIES = 5; // Maximum number of retries
         const RETRY_DELAY = 750; // Initial delay in milliseconds (will increase)
         
@@ -101,7 +131,109 @@ export class ApiConnection{
         let retries = 0;
     
         while (retries < MAX_RETRIES) {
+            console.debug(`Attempt ${retries + 1} of ${MAX_RETRIES}`);
             try {
+                if (this.type === 'gemini') {
+                    const url = stream 
+                        ? `${this.client.baseURL}/models/${this.model}:streamGenerateContent?key=${this.client.apiKey}&alt=sse`
+                        : `${this.client.baseURL}/models/${this.model}:generateContent?key=${this.client.apiKey}`;
+
+                    // Gemini expects a different message format
+                    const contents = (prompt as Message[]).map(msg => {
+                        // Gemini roles are 'user' and 'model'
+                        const role = msg.role === 'assistant' ? 'model' : 'user';
+                        return {
+                            role: role,
+                            parts: [{ text: msg.content }]
+                        };
+                    });
+
+                    // Gemini API has some constraints on conversation history.
+                    // It must alternate between 'user' and 'model'.
+                    // Let's fix it if it doesn't.
+                    for (let i = 0; i < contents.length - 1; i++) {
+                        if (contents[i].role === contents[i+1].role) {
+                            // A bit of a hack: merge consecutive messages from the same role.
+                            contents[i+1].parts[0].text = contents[i].parts[0].text + "\n" + contents[i+1].parts[0].text;
+                            contents.splice(i, 1);
+                            i--; // re-check from the same index
+                        }
+                    }
+                    // The first message must be from a 'user'.
+                    if (contents.length > 0 && contents[0].role === 'model') {
+                        contents.shift();
+                    }
+
+
+                    const requestBody = {
+                        contents: contents,
+                        generationConfig: {
+                            // map parameters
+                            temperature: this.parameters.temperature,
+                            topP: this.parameters.top_p,
+                            // Gemini doesn't have frequency_penalty or presence_penalty
+                            // maxOutputTokens: ??? - not available in otherArgs
+                        }
+                    };
+                    console.debug("Making Gemini request with body:", JSON.stringify(requestBody, null, 2));
+
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        console.error("Gemini API Error:", errorText);
+                        throw new Error(`Gemini API error: ${res.status} ${errorText}`);
+                    }
+
+                    if (stream) {
+                        const reader = res.body!.getReader();
+                        const decoder = new TextDecoder();
+                        let responseText = "";
+                        let buffer = "";
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop() || ""; // Keep the last partial line in buffer
+
+                            for (const line of lines) {
+                                if (line.startsWith('data: ')) {
+                                    try {
+                                        const jsonStr = line.substring(6);
+                                        const parsed = JSON.parse(jsonStr);
+                                        if (parsed.candidates && parsed.candidates[0].content.parts[0].text) {
+                                            const textChunk = parsed.candidates[0].content.parts[0].text;
+                                            streamRelay!({ content: textChunk });
+                                            responseText += textChunk;
+                                        }
+                                    } catch (e) {
+                                        console.error("Error parsing Gemini stream chunk:", e, line);
+                                    }
+                                }
+                            }
+                        }
+                        return responseText;
+                    } else {
+                        const data = await res.json();
+                        console.debug("Received Gemini non-stream response:", data);
+                        if (data.candidates && data.candidates[0].content.parts[0].text) {
+                            return data.candidates[0].content.parts[0].text;
+                        } else if (data.candidates && data.candidates[0].finishReason === "SAFETY") {
+                            throw new Error("Response blocked by Gemini's safety filters.");
+                        }
+                        else {
+                            console.error("Invalid Gemini response:", data);
+                            throw new Error("Invalid response from Gemini API");
+                        }
+                    }
+                }
                 //OPENAI DOESN'T ALLOW spaces inside message.name so we have to put them inside the Message content.
                 if (this.type === "openai") {
                     for (let i = 0; i < prompt.length; i++) {
@@ -115,18 +247,20 @@ export class ApiConnection{
                         }
                     }
                 }
-                console.log(prompt);
+                console.debug("Prompt before sending to API:", prompt);
     
                 if (this.isChat()) {
-                    let completion = await this.client.chat.completions.create({
+                    const requestBody = {
                         model: this.model,
-                        //@ts-ignore
-                        messages: prompt,
+                        messages: prompt as Message[],
                         stream: stream,
                         ...this.parameters,
                         ...otherArgs
-                    });
+                    };
+                    console.debug("Making chat completion request with body:", requestBody);
+                    let completion = await this.client.chat.completions.create(requestBody as any);
     
+                    console.debug("Received API response (completion object):", completion);
                     let response: string = "";
     
                     //@ts-ignore
@@ -149,40 +283,45 @@ export class ApiConnection{
                         response = completion.choices[0].message.content;
                     }
     
-                    console.log(response);
+                    console.debug("Parsed response:", response);
                     return response;
                 } else {
                     let completion;
-    
+        
                     if (this.type === "openrouter") {
+                        // Backcompat: use legacy 'prompt' key for OpenRouter sentiment engines
+                        const requestBody = {
+                            model: this.model,
+                            prompt: prompt as string,  // legacy OpenRouter format
+                            stream: stream,
+                            ...this.parameters,
+                            ...otherArgs
+                        };
+                        console.debug("Making OpenRouter legacy completion request with body:", requestBody);
                         //@ts-ignore
-                        completion = await this.client.chat.completions.create({
-                            model: this.model,
-                            //@ts-ignore
-                            prompt: prompt,
-                            stream: stream,
-                            ...this.parameters,
-                            ...otherArgs
-                        });
+                        completion = await this.client.chat.completions.create(requestBody as any);
                     } else {
-                        completion = await this.client.completions.create({
+                        // Standard non-chat API
+                        const requestBody = {
                             model: this.model,
-                            //@ts-ignore
-                            prompt: prompt,
+                            prompt: prompt as string,
                             stream: stream,
                             ...this.parameters,
                             ...otherArgs
-                        });
+                        };
+                        console.debug("Making standard completion request with body:", requestBody);
+                        completion = await this.client.completions.create(requestBody as any);
                     }
-    
+
+                    console.debug("Received API response (completion object):", completion);
                     let response: string = "";
-    
+
                     //@ts-ignore
                     if (completion["error"]) {
                         //@ts-ignore
                         throw new Error(completion.error.message);
                     }
-    
+
                     if (stream) {
                         // @ts-ignore
                         for await (const chunk of completion) {
@@ -191,21 +330,29 @@ export class ApiConnection{
                                 content: chunk.choices[0].text
                             };
                             streamRelay!(msgChunk);
-    
+
                             response += msgChunk.content;
                         }
                     } else {
-                        // @ts-ignore
-                        response = completion.choices[0].text;
+                        // Notice: OpenRouter returns response in completion.choices[0].text trough chat endpoint with legacy format
+                        if (this.type === "openrouter") {
+                            // @ts-ignore
+                            response = completion.choices[0].text;
+                        } else {
+                            // @ts-ignore
+                            response = completion.choices[0].text;
+                        }
                     }
-    
-                    console.log(response);
+
+                    console.debug("Parsed response:", response);
                     if (response === "" || response === undefined || response === null || response === " ") {
                         throw new Error("{code: 599, error: {message: 'No response'}}");
                     }
                     return response;
                 }
             } catch (error) {
+                console.debug(`--- API CONNECTION: complete() caught an error on attempt ${retries + 1} ---`);
+                console.error(error);
                 // Narrow down the error type
                 if (typeof error === "object" && error !== null && "code" in error && "error" in error) {
                     const typedError = error as {
@@ -218,7 +365,7 @@ export class ApiConnection{
                         typedError.error?.message.includes("Provider returned error")
                     ) {
                         retries++;
-                        console.warn(
+                        console.debug(
                             `Retry ${retries}/${MAX_RETRIES} after error: ${typedError.error?.message}, delaying for ${
                                 RETRY_DELAY * retries
                             }ms`
@@ -229,30 +376,55 @@ export class ApiConnection{
                         typedError.error?.message.includes("No response")
                     ) {
                         retries++;
-                        console.warn(
+                        console.debug(
                             `Retry ${retries}/${MAX_RETRIES} after error: ${typedError.error?.message}, delaying for ${
                                 RETRY_DELAY * retries
                             }ms`
                         );
                         await delay(RETRY_DELAY * retries); // Exponential backoff
                     } else {
-                        console.error("Unrecoverable error:", error);
+                        console.debug("Unrecoverable error:", error);
                         throw error; // Propagate unrecoverable errors
                     }
                 } else {
-                    console.error("Unknown error type:", error);
+                    console.debug("Unknown error type:", error);
                     throw error; // If it's not an object or doesn't have the expected properties
                 }
             }
             
         }
     
-        console.error(`Failed after ${MAX_RETRIES} retries.`);
+        console.debug(`Failed after ${MAX_RETRIES} retries.`);
         //throw new Error(`Unable to complete request after ${MAX_RETRIES} retries.`);
         return ""
     }
     
     async testConnection(): Promise<apiConnectionTestResult>{
+        console.debug("--- API CONNECTION: testConnection() ---");
+        if (this.type === 'gemini') {
+            const url = `${this.client.baseURL}/models/${this.model}:generateContent?key=${this.client.apiKey}`;
+            const body = {
+                contents: [{ role: "user", parts: [{ text: "ping" }] }]
+            };
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (data.candidates && data.candidates.length > 0) {
+                    return { success: true, overwriteWarning: this.overwriteWarning };
+                } else {
+                    return { success: false, overwriteWarning: false, errorMessage: data.error?.message || "Invalid response from Gemini" };
+                }
+            } catch (err) {
+                if (err instanceof Error) {
+                    return { success: false, overwriteWarning: false, errorMessage: err.message };
+                }
+                return { success: false, overwriteWarning: false, errorMessage: String(err) };
+            }
+        }
         let prompt: string | Message[];
         if(this.isChat()){
             prompt = [
@@ -264,8 +436,10 @@ export class ApiConnection{
         }else{
             prompt = "ping";
         }
+        console.debug("Test prompt:", prompt);
 
         return this.complete(prompt, false, {max_tokens: 1}).then( (resp) =>{
+            console.debug("testConnection received response from complete():", resp);
             if(resp){
                 return {success: true, overwriteWarning: this.overwriteWarning };
             }
@@ -273,7 +447,11 @@ export class ApiConnection{
                 return {success: false, overwriteWarning: false, errorMessage: "no response, something went wrong..."};
             }
         }).catch( (err) =>{
-            return {success: false, overwriteWarning: false, errorMessage: err}
+            console.debug("testConnection caught an error from complete():", err);
+            if (err instanceof Error) {
+                return {success: false, overwriteWarning: false, errorMessage: err.message};
+            }
+            return {success: false, overwriteWarning: false, errorMessage: String(err)};
         });
     }
 

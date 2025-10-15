@@ -6,6 +6,7 @@ import { Character } from "../../shared/gameData/Character";
 import { Config } from "../../shared/Config";
 import path from 'path';
 import { app } from 'electron';
+import fs from 'fs';
 
 export function convertChatToText(chat: Message[], config: Config, aiName: string): string{
     let output: string = "";
@@ -43,24 +44,65 @@ export function convertChatToTextNoNames(messages: Message[], config: Config): s
 }
 
 export function buildChatPrompt(conv: Conversation, character: Character): Message[]{
+    console.log(`Building chat prompt for character: ${character.fullName}`);
     let chatPrompt: Message[]  = [];
 
-    chatPrompt.push({
-        role: "system",
-        content: parseVariables(conv.config.mainPrompt, conv.gameData)
-    })
+    const userDataPath = path.join(app.getPath('userData'), 'votc_data');
+    const isSelfTalk = conv.gameData.playerID === conv.gameData.aiID;
+
+    if (isSelfTalk) {
+        chatPrompt.push({
+            role: "system",
+            content: parseVariables(conv.config.selfTalkPrompt, conv.gameData)
+        });
+        console.log('Added self-talk main prompt from config.');
+    } else {
+        chatPrompt.push({
+            role: "system",
+            content: parseVariables(conv.config.mainPrompt, conv.gameData)
+        });
+        console.log('Added standard main prompt.');
+    }
 
     chatPrompt.push({
         role: "system",
         content: "[example messages]"
     })
-    
-    // chatPrompt = chatPrompt.concat(conv.exampleMessages);
 
-    const userDataPath = path.join(app.getPath('userData'), 'votc_data');
-    const exampleMessagesPath = path.join(userDataPath, 'scripts', 'prompts', 'example messages', "standard", "mccAliChat.js");
-    let exampleMessages = require(exampleMessagesPath)(conv.gameData, character.id);
-    chatPrompt = chatPrompt.concat(exampleMessages);
+    let exampleMessagesScriptFileName: string;
+    let exampleMessagesPath: string | null;
+
+    if (isSelfTalk) {
+        exampleMessagesScriptFileName = conv.config.selectedSelfTalkExMsgScript;
+        exampleMessagesPath = path.join(userDataPath, 'scripts', 'prompts', 'example messages', exampleMessagesScriptFileName);
+    } else {
+        exampleMessagesScriptFileName = conv.config.selectedExMsgScript;
+        const standardPath = path.join(userDataPath, 'scripts', 'prompts', 'example messages', exampleMessagesScriptFileName);
+        const customPath = path.join(userDataPath, 'scripts', 'prompts', 'example messages', exampleMessagesScriptFileName);
+
+        if (fs.existsSync(standardPath)) {
+            exampleMessagesPath = standardPath;
+        } else if (fs.existsSync(customPath)) {
+            exampleMessagesPath = customPath;
+        } else {
+            console.error(`Example message script not found: ${exampleMessagesScriptFileName}. Continuing without example messages.`);
+            exampleMessagesPath = null;
+        }
+    }
+
+    if (exampleMessagesPath && fs.existsSync(exampleMessagesPath)) {
+        try {
+            delete require.cache[require.resolve(exampleMessagesPath)];
+            let exampleMessages = require(exampleMessagesPath)(conv.gameData, character.id);
+            chatPrompt = chatPrompt.concat(exampleMessages);
+            console.log(`Added example messages from script: ${exampleMessagesScriptFileName}.`);
+        } catch (err) {
+            console.error(`Error loading example message script '${exampleMessagesScriptFileName}': ${err}`);
+            conv.chatWindow.window.webContents.send('error-message', `Error in example message script '${exampleMessagesScriptFileName}'.`);
+        }
+    } else if (exampleMessagesPath) { // If path was set but file doesn't exist
+        console.error(`Example message script file not found at expected path: ${exampleMessagesPath}. Continuing without example messages.`);
+    }
     
 
     chatPrompt.push({
@@ -76,6 +118,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     };
 
     insertMessageAtDepth(messages, descMessage, conv.config.descInsertDepth);
+    console.log(`Inserted description at depth: ${conv.config.descInsertDepth}.`);
 
 
     const memoryMessage: Message = {
@@ -86,6 +129,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     
     if(memoryMessage.content){
         insertMessageAtDepth(messages, memoryMessage, conv.config.memoriesInsertDepth);
+        console.log(`Inserted memories at depth: ${conv.config.memoriesInsertDepth}.`);
     }
 
     // too early right now
@@ -96,27 +140,40 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
 
     // if(secretMessage.content){
     //     insertMessageAtDepth(messages, secretMessage, conv.config.memoriesInsertDepth);
+    //     console.log(`Inserted secrets at depth: ${conv.config.memoriesInsertDepth}.`);
     // }
 
+    const characterSummaries = conv.summaries.get(character.id) || [];
 
-    if(conv.summaries.length > 0){
-        let summaryString = "Here are the date and summary of previous conversations between " + conv.gameData.aiName + " and " + conv.gameData.playerName + ":\n"
-
-        conv.summaries.reverse();
-
-        for(let summary of conv.summaries){
-            summaryString += `${summary.date} (${getDateDifference(summary.date, conv.gameData.date)}): ${summary.content}\n`;
+    if(characterSummaries.length > 0){
+        let summaryString: string;
+        if (isSelfTalk) {
+            summaryString = "Here are the date and summary of previous internal monologues for " + conv.gameData.playerName + ":\n";
+        } else {
+            summaryString = "Here are the date and summary of previous conversations between " + character.fullName + " and " + conv.gameData.playerName + ":\n";
         }
 
-        conv.summaries.reverse();
+        const summariesToProcess = [...characterSummaries];
+        summariesToProcess.reverse();
+
+        const currentGameDate = parseGameDate(conv.gameData.date);
+
+        for(let summary of summariesToProcess){
+            const summaryDate = parseGameDate(summary.date);
+
+            // Include summary if its date is unknown OR if it's in the past/present.
+            if(!summaryDate || (currentGameDate && summaryDate <= currentGameDate)){
+                summaryString += `${summary.date} (${getDateDifference(summary.date, conv.gameData.date)}): ${summary.content}\n`;
+            }
+        }
 
         let summariesMessage: Message = {
             role: "system",
             content: summaryString
         } 
 
-        
         insertMessageAtDepth(messages, summariesMessage, conv.config.summariesInsertDepth); 
+        console.log(`Added previous conversation summaries for ${character.fullName} at depth: ${conv.config.summariesInsertDepth}.`);
     }
     
 
@@ -129,6 +186,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
         }
 
         messages.unshift(currentSummaryMessage);
+        console.log('Added current conversation summary.');
     }
 
     chatPrompt = chatPrompt.concat(messages);
@@ -138,27 +196,29 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
             role: "system",
             content: conv.config.suffixPrompt
         })
+        console.log('Added suffix prompt.');
     }
 
-    
-
+    console.log(`Final chat prompt message count: ${chatPrompt.length}`);
     return chatPrompt;
 }
 
 //SUMMARIZATION
 
 export function buildSummarizeChatPrompt(conv: Conversation): Message[]{
-    
     let output: Message[] = [];
 
     output.push({
         role: "system",
         content: convertMessagesToString(conv.messages, "", "")
-    })
+    });
 
-    output = output.concat({
+    const isSelfTalk = conv.gameData.playerID === conv.gameData.aiID;
+    const prompt = isSelfTalk ? conv.config.selfTalkSummarizePrompt : conv.config.summarizePrompt;
+
+    output.push({
         role: "system",
-        content: parseVariables(conv.config.summarizePrompt, conv.gameData)
+        content: parseVariables(prompt, conv.gameData)
     });
 
     return output;
@@ -166,24 +226,30 @@ export function buildSummarizeChatPrompt(conv: Conversation): Message[]{
 
 export function buildResummarizeChatPrompt(conv: Conversation, messagesToSummarize: Message[]): Message[]{
     let prompt: Message[] = [];
+    const isSelfTalk = conv.gameData.playerID === conv.gameData.aiID;
 
     if(conv.currentSummary){
+        const summaryIntro = isSelfTalk 
+            ? "Summary of this internal monologue that happened before the messages:" 
+            : "Summary of this conversation that happened before the messages:";
+        
         prompt.push({
             role: "system",
-            content: "Summary of this conversation that happened before the messages:"+conv.currentSummary
-        })
+            content: summaryIntro + conv.currentSummary
+        });
     }
     
-
     prompt.push({
         role: "system",
         content: convertMessagesToString(messagesToSummarize, "", "")
-    })
+    });
+
+    const summarizePrompt = isSelfTalk ? conv.config.selfTalkSummarizePrompt : conv.config.summarizePrompt;
 
     prompt.push({
         role: "system",
-        content: parseVariables(conv.config.summarizePrompt, conv.gameData)
-    })
+        content: parseVariables(summarizePrompt, conv.gameData)
+    });
 
     return prompt;
 }
@@ -217,6 +283,29 @@ function insertMessageAtDepth(messages: Message[], messageToInsert: Message, ins
     else{
         messages.splice(messages.length - insertDepth + 1, 0, messageToInsert);
     }
+}
+
+function parseGameDate(dateStr: string): Date | null {
+    if (!dateStr || !(dateStr.trim())) return null;
+
+    const str = dateStr.trim();
+
+    // Handle purely numeric strings, assuming they are a year.
+    if (/^\d+$/.test(str)) {
+        // Creates a date for Jan 1st of that year.
+        return new Date(parseInt(str), 0, 1);
+    }
+
+    // Attempt to parse with the native constructor for standard/English formats.
+    const date = new Date(str);
+
+    // Return the date object if it's valid, otherwise return null.
+    if (!isNaN(date.getTime())) {
+        return date;
+    }
+
+    console.warn(`Could not parse date string: "${str}". It will be included in the prompt by default.`);
+    return null;
 }
 
 function getDateDifference(pastDate: string, todayDate: string): string{
@@ -303,10 +392,10 @@ function createMemoryString(conv: Conversation): string{
     // allMemories = allMemories.concat(conv.gameData.characters.get(conv.gameData.aiID)!.memories);
 
     allMemories.sort((a, b) => (b.relevanceWeight - a.relevanceWeight));
-    
+
     allMemories.reverse();
 
-    
+
 
     let output ="";
     if(allMemories.length>0){
