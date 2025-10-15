@@ -59,7 +59,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     } else {
         chatPrompt.push({
             role: "system",
-            content: parseVariables(conv.config.mainPrompt, conv.gameData)
+            content: "扮演角色" + character.house + character.firstName + "写一条回复"+ "\n" + parseVariables(conv.config.mainPrompt, conv.gameData)
         });
         console.log('Added standard main prompt.');
     }
