@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Voices of the Court - Chat</title>
+  <title data-i18n="common.appTitle">Voices of the Court - Chat</title>
   <meta name="viewport" content="width=device-width">
   <link rel="stylesheet" href="chat.css"/>
   <link rel="stylesheet" href="user.css"/>
@@ -13,10 +13,18 @@
       <div class="messages">
       </div>
     </div>
-    <textarea class="chat-input" placeholder="Write a message..." rows="4" cols="20"></textarea>
-    <button class="leave-button">End conversation</button>
+    <textarea class="chat-input" placeholder="Write a message..." rows="4" cols="20" data-i18n-placeholder="chat.typeMessage"></textarea>
+    <button class="leave-button" data-i18n="chat.send">End conversation</button>
   </div>
   
   <script>require("../../dist/chatWindow/chatRenderer.js")</script>
+    
+    <!-- 初始化本地化系统 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const { initializeLocalization } = require('../../dist/configWindow/utils/localization.js');
+        initializeLocalization();
+      });
+    </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Voices of the Court</title>
+  <title data-i18n="common.appTitle">Voices of the Court</title>
   <link rel="stylesheet" href="config.css" />
 
   
@@ -13,12 +13,12 @@
 <body>
   <div class="navbar">
     <ul>
-      <li><a href="connection.html">Connection</a></li>
-      <li><a href="actions.html">Actions</a></li>
-      <li><a href="summarization.html">Summarization</a></li>
-      <li><a href="prompts.html">Prompts</a></li>
-      <li class="active"><a href="settings.html">Settings</a></li>
-      <li><a href="system.html">System</a></li>
+      <li><a href="connection.html" data-i18n="navigation.connection">Connection</a></li>
+        <li><a href="actions.html" data-i18n="navigation.actions">Actions</a></li>
+        <li><a href="summarization.html" data-i18n="navigation.summarization">Summarization</a></li>
+        <li><a href="prompts.html" data-i18n="navigation.prompts">Prompts</a></li>
+        <li class="active"><a href="settings.html" data-i18n="navigation.settings">Settings</a></li>
+        <li><a href="system.html" data-i18n="navigation.system">System</a></li>
     </ul>
   </div>
 
@@ -27,49 +27,22 @@
     <div class="row">
       <div class="column">
 
-        <h2>Settings</h2>
+        <h2 data-i18n="settings.settings">Settings</h2>
 
         <div class="border">
           <div class="input-group">
-            <div class="row">
-              <div class="column">
-                <config-number confID="maxTokens" label="max new tokens" min="0" max="4084"></config-number>
-              </div>
-              <div class="column">
-                <config-number confID="maxMemoryTokens" label="max memory tokens" min="0" max="4084"></config-number>
-              </div>
-            </div>
-            
-            <hr>
-
-            <div class="row">
-              <div class="column">
-                <config-checkbox confID="stream" label="stream messages"></config-checkbox>
-              </div>
-
-              <div class="column">
-                <config-checkbox confID="cleanMessages" label="clean Messages"></config-checkbox> <tooltip-text side="top">The mod will try to remove parts of the messages that the llm shouldn't have generated, like emojis </tooltip-text>
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="column">
-                <config-number confID="summariesInsertDepth" label="Summaries insert depth" min="0" max="20"></config-number>
-              </div>
-              <div class="column">
-                <config-number confID="memoriesInsertDepth" label="Memories insert depth" min="0" max="20"></config-number>
-              </div>
-            </div>
-            <div class="row">
-              <div class="column">
-                <config-number confID="descInsertDepth" label="Char desc insert depth" min="0" max="20"></config-number>
-              </div>
-            </div>
+            <config-slider confID="maxTokens" data-i18n-label="settings.maxTokens" label="Max Tokens" min="1" max="8192" step="1" default="512"></config-slider>
+            <config-slider confID="temperature" data-i18n-label="settings.temperature" label="Temperature" min="0" max="2" step="0.01" default="0.7"></config-slider>
+            <config-slider confID="topP" data-i18n-label="settings.topP" label="Top P" min="0" max="1" step="0.01" default="0.9"></config-slider>
+            <config-slider confID="frequencyPenalty" data-i18n-label="settings.frequencyPenalty" label="Frequency Penalty" min="-2" max="2" step="0.01" default="0"></config-slider>
+            <config-slider confID="presencePenalty" data-i18n-label="settings.presencePenalty" label="Presence Penalty" min="-2" max="2" step="0.01" default="0"></config-slider>
+            <config-slider confID="percentOfContextToSummarize" data-i18n-label="settings.percentOfContextToSummarize" label="Percent of context to summarize" min="0" max="100" step="1" default="50"></config-slider>
+            <language-selector></language-selector>
           </div>  
         </div>
         <br>
 
-        <h2>Instruct settings</h2>
+        <h2 data-i18n="settings.instructSettings">Instruct settings</h2>
 
         <div class="border">
           
@@ -87,7 +60,7 @@
       </div>
       <div class="column">
 
-        <h2>Text-generation parameters</h2>
+        <h2 data-i18n="settings.textGenerationParameters">Text-generation parameters</h2>
 
         
 
@@ -109,11 +82,20 @@
   <script>require("../../dist/configWindow/components/ConfigText.js")</script>
   <script>require("../../dist/configWindow/components/ConfigNumber.js")</script>
   <script>require("../../dist/configWindow/components/ConfigSlider.js")</script>
-    <script>require("../../dist/configWindow/components/ParametersBox.js")</script>
+  <script>require("../../dist/configWindow/components/ParametersBox.js")</script>
   <script>require("../../dist/configWindow/components/tooltip.js")</script>
+  <script>require("../../dist/configWindow/components/LanguageSelector.js")</script>
   <script>require("../../dist/configWindow/modelSettingsRenderer.js")</script>
   
+  <script>require("../../dist/configWindow/settings.js")</script>
   
+  <!-- 初始化本地化系统 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const { initializeLocalization } = require('../../dist/configWindow/utils/localization.js');
+      initializeLocalization();
+    });
+  </script>
 </body>
 
 </html>

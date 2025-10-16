@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Voices of the Court</title>
+    <title data-i18n="common.appTitle">Voices of the Court</title>
     <link rel="stylesheet" href="config.css" />
     
   </head>
@@ -11,12 +11,12 @@
     
     <div class="navbar">
       <ul>
-        <li class="active"><a href="connection.html">Connection</a></li>
-        <li><a href="actions.html">Actions</a></li>
-        <li><a href="summarization.html">Summarization</a></li>
-        <li><a href="prompts.html">Prompts</a></li>
-        <li><a href="settings.html">Settings</a></li>
-        <li><a href="system.html">System</a></li>
+        <li class="active"><a href="connection.html" data-i18n="navigation.connection">Connection</a></li>
+        <li><a href="actions.html" data-i18n="navigation.actions">Actions</a></li>
+        <li><a href="summarization.html" data-i18n="navigation.summarization">Summarization</a></li>
+        <li><a href="prompts.html" data-i18n="navigation.prompts">Prompts</a></li>
+        <li><a href="settings.html" data-i18n="navigation.settings">Settings</a></li>
+        <li><a href="system.html" data-i18n="navigation.system">System</a></li>
       </ul> 
     </div>
     
@@ -29,9 +29,10 @@
       
 
       <div class="input-group">
-        <label for="run-path-button">CK3 user folder path</label> <tooltip-text side="top">Here you need to select the CK3 folder where your user data are stored, not where the game files are! By default it stored in your user documents, inside the Paradox interactive folder</tooltip-text>
+        <label for="run-path-button" data-i18n="connection.ck3PathLabel">CK3 user folder path</label> 
+        <tooltip-text side="top" data-i18n="connection.ck3PathTooltip">Here you need to select the CK3 folder where your user data are stored, not where the game files are! By default it stored in your user documents, inside the Paradox interactive folder</tooltip-text>
         <br> 
-        <button type="button" id="run-path-button">Select Folder</button>
+        <button type="button" id="run-path-button" data-i18n="connection.selectFolder">Select Folder</button>
         <input type="text" id="run-path-input">
       </div>
       
@@ -40,10 +41,25 @@
     </div>
 
     <script>require("../../dist/configWindow/components/ConfigCheckbox.js")</script>
+    <script>require("../../dist/configWindow/components/ConfigText.js")</script>
+    <script>require("../../dist/configWindow/components/ConfigTextarea.js")</script>
     <script>require("../../dist/configWindow/components/ConfigNumber.js")</script>
-    <script>require("../../dist/configWindow/components/apiSelector.js")</script>
+    <script>require("../../dist/configWindow/components/ConfigSlider.js")</script>
+    <script>require("../../dist/configWindow/components/ParametersBox.js")</script>
     <script>require("../../dist/configWindow/components/tooltip.js")</script>
-    <script>require("../../dist/configWindow/connectionRenderer.js")</script>
+    <script>require("../../dist/configWindow/components/LanguageSelector.js")</script>
+    <script>require("../../dist/configWindow/components/apiSelector.js")</script>
+    <script>require("../../dist/configWindow/modelSettingsRenderer.js")</script>
+    
+    <script>require("../../dist/configWindow/connection.js")</script>
+    
+    <!-- 初始化本地化系统 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const { initializeLocalization } = require('../../dist/configWindow/utils/localization.js');
+        initializeLocalization();
+      });
+    </script>
     
   </body>
 </html>

@@ -378,6 +378,17 @@ ipcMain.handle('get-config', () => {
     return config
 });
 
+ipcMain.handle('set-config', (e, confID: string, newValue: any) => {
+    console.log(`IPC: Received set-config event. ID: ${confID}, New Value: ${newValue}`);
+    //@ts-ignore
+    config[confID] = newValue;
+    config.export();
+    if(chatWindow.isShown){
+        conversation.updateConfig(config);
+    }
+    return { success: true };
+});
+
 ipcMain.handle('get-userdata-path', () => {
     console.log('IPC: Received get-userdata-path event.');
     return path.join(app.getPath("userData"), 'votc_data')

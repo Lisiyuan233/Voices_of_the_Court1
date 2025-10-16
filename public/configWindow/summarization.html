@@ -2,32 +2,32 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Voices of the Court</title>
+    <title data-i18n="common.appTitle">Voices of the Court</title>
     <link rel="stylesheet" href="config.css" />
     
   </head>
   <body>
     <div class="navbar">
       <ul>
-        <li><a href="connection.html">Connection</a></li>
-        <li><a href="actions.html">Actions</a></li>
-        <li class="active"><a href="summarization.html">Summarization</a></li>
-        <li><a href="prompts.html">Prompts</a></li>
-        <li><a href="settings.html">Settings</a></li>
-        <li><a href="system.html">System</a></li>
+        <li><a href="connection.html" data-i18n="navigation.connection">Connection</a></li>
+        <li><a href="actions.html" data-i18n="navigation.actions">Actions</a></li>
+        <li class="active"><a href="summarization.html" data-i18n="navigation.summarization">Summarization</a></li>
+        <li><a href="prompts.html" data-i18n="navigation.prompts">Prompts</a></li>
+        <li><a href="settings.html" data-i18n="navigation.settings">Settings</a></li>
+        <li><a href="system.html" data-i18n="navigation.system">System</a></li>
       </ul> 
     </div>
     
     <div class="container" id="container">
 
-        <config-checkbox id="use-connection-api" confID="summarizationUseTextGenApi" label="Use the same API as in the connection tab"></config-checkbox>
+        <config-checkbox id="use-connection-api" confID="summarizationUseTextGenApi" data-i18n-label="summarization.useSameApi" label="Use the same API as in the connection tab"></config-checkbox>
 
         <div class="border">   
             <config-api-selector id="api-selector" confID="summarizationApiConnectionConfig"></config-api-selector>      
         </div>
         <br>
 
-        <h2>Parameters</h2>
+        <h2 data-i18n="summarization.parameters">Parameters</h2>
         <parameters-box confID="summarizationApiConnectionConfig" tempDefault="0.2" freqPenDefault ="0" presPenDefault="0" topPDefault="0.9"></parameters-box>
 
         
@@ -38,7 +38,17 @@
     <script>require("../../dist/configWindow/components/apiSelector.js")</script> 
     <script>require("../../dist/configWindow/components/configSlider.js")</script>
     <script>require("../../dist/configWindow/components/ParametersBox.js")</script>
+    <script>require("../../dist/configWindow/components/tooltip.js")</script>
+    <script>require("../../dist/configWindow/components/LanguageSelector.js")</script>
     <script>require("../../dist/configWindow/summarizationRenderer.js")</script>
+    
+    <!-- 初始化本地化系统 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const { initializeLocalization } = require('../../dist/configWindow/utils/localization.js');
+        initializeLocalization();
+      });
+    </script>
     
     
   </body>

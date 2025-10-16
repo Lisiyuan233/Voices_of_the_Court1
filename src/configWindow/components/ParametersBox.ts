@@ -7,10 +7,10 @@ function defineTemplate(tempDefault: number, freqPenDefault: number, presPenDefa
     return `
     <div id="div" class="border">
         <link rel="stylesheet" href="../../public/configWindow/config.css">
-        <config-slider id="temp" confID="temperature" label="Temperature"  min="0" max="2" step="0.01" default="${tempDefault}"></config-slider>
-        <config-slider id="freqPen" confID="frequency_penalty" label="Frequency Penalty"  min="-2" max="2" step="0.01" default="${freqPenDefault}"></config-slider>
-        <config-slider id="presPen" confID="presence_penalty" label="Presence Penalty"  min="-2" max="2" step="0.01" default="${presPenDefault}"></config-slider>
-        <config-slider id="topP" confID="top_p" label="top P"  min="0" max="1" step="0.01" default="${topPDefault}"></config-slider>
+        <config-slider id="temp" confID="temperature" data-i18n-label="apiSelector.temperature" min="0" max="2" step="0.01" default="${tempDefault}"></config-slider>
+        <config-slider id="freqPen" confID="frequency_penalty" data-i18n-label="apiSelector.frequencyPenalty" min="-2" max="2" step="0.01" default="${freqPenDefault}"></config-slider>
+        <config-slider id="presPen" confID="presence_penalty" data-i18n-label="apiSelector.presencePenalty" min="-2" max="2" step="0.01" default="${presPenDefault}"></config-slider>
+        <config-slider id="topP" confID="top_p" data-i18n-label="apiSelector.topP" min="0" max="1" step="0.01" default="${topPDefault}"></config-slider>
     </div>
     `
     
@@ -76,6 +76,12 @@ class ParametersBox extends HTMLElement{
         this.presPenSlider.changeValue(values.presence_penalty);
         this.topPSlider.changeValue(values.top_p);
 
+        // 触发子组件的本地化更新
+        this.updateLocalization();
+
+        // 监听语言变更事件
+        window.addEventListener('languageChanged', this.updateLocalization.bind(this));
+
         //TODO: FIX THIS ABOMINATION
         [this.tempSlider, this.freqPenSlider, this.presPenSlider, this.topPSlider].forEach(element => {
             
@@ -111,6 +117,19 @@ class ParametersBox extends HTMLElement{
                 ipcRenderer.send('config-change-nested', confID, "parameters", newParameters);
             });
         });
+    }
+
+    private updateLocalization() {
+        // 触发所有子组件的本地化更新
+        [this.tempSlider, this.freqPenSlider, this.presPenSlider, this.topPSlider].forEach(slider => {
+            if (slider && typeof slider.updateLabel === 'function') {
+                slider.updateLabel();
+            }
+        });
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('languageChanged', this.updateLocalization.bind(this));
     }
 }
 

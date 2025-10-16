@@ -2,19 +2,19 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Voices of the Court</title>
+    <title data-i18n="common.appTitle">Voices of the Court</title>
     <link rel="stylesheet" href="config.css" />
     
   </head>
   <body>
     <div class="navbar">
       <ul>
-        <li><a href="connection.html">Connection</a></li>
-        <li><a href="actions.html">Actions</a></li>
-        <li><a href="summarization.html">Summarization</a></li>
-        <li class="active"><a href="prompts.html">Prompts</a></li>
-        <li ><a href="settings.html">Settings</a></li>
-        <li><a href="system.html">System</a></li>
+        <li><a href="connection.html" data-i18n="navigation.connection">Connection</a></li>
+        <li><a href="actions.html" data-i18n="navigation.actions">Actions</a></li>
+        <li><a href="summarization.html" data-i18n="navigation.summarization">Summarization</a></li>
+        <li class="active"><a href="prompts.html" data-i18n="navigation.prompts">Prompts</a></li>
+        <li><a href="settings.html" data-i18n="navigation.settings">Settings</a></li>
+        <li><a href="system.html" data-i18n="navigation.system">System</a></li>
       </ul> 
     </div>
 
@@ -22,37 +22,37 @@
         <div class="row">
             <div class="column">
 
-                <h2>Prompts</h2>
+                <h2 data-i18n="prompts.prompts">Prompts</h2>
 
                 <div class="border" id="prompt-options">
                     
                     <div class="input-group">
-                        Main prompt
+                        <span data-i18n="prompts.mainPrompt">Main prompt</span>
                         <config-textarea confID="mainPrompt" rows="6"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                        Self-Talk Prompt
+                        <span data-i18n="prompts.selfTalkPrompt">Self-Talk Prompt</span>
                         <config-textarea confID="selfTalkPrompt" rows="6"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                      Summarize prompt
+                      <span data-i18n="prompts.summarizePrompt">Summarize prompt</span>
                       <config-textarea confID="summarizePrompt" rows="6"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                        Self-Talk Summarize prompt
+                        <span data-i18n="prompts.selfTalkSummarizePrompt">Self-Talk Summarize prompt</span>
                         <config-textarea confID="selfTalkSummarizePrompt" rows="6"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                      Memories prompt
+                      <span data-i18n="prompts.memoriesPrompt">Memories prompt</span>
                       <config-textarea confID="memoriesPrompt" rows="2"></config-textarea>
                     </div>
 
                     <div class="input-group">
-                        <config-checkbox id="suffix-prompt-checkbox" confID="enableSuffixPrompt" label="Suffix prompt"></config-checkbox> <tooltip-text side="top">If enabled, suffix prompt is inserted as the last (system) message before sending the API request, it's useful for jailbreaking, or instructing the model on how to format the response message.</tooltip-text>
+                        <config-checkbox id="suffix-prompt-checkbox" confID="enableSuffixPrompt" data-i18n-label="prompts.suffixPrompt" label="Suffix prompt"></config-checkbox> <tooltip-text side="top" data-i18n="prompts.suffixPromptTooltip">If enabled, suffix prompt is inserted as the last (system) message before sending the API request, it's useful for jailbreaking, or instructing the model on how to format the response message.</tooltip-text>
                         <config-textarea id="suffix-prompt-textarea" confID="suffixPrompt" rows="6"></config-textarea> 
                     </div>
                 </div>
@@ -61,26 +61,26 @@
             <div class="column">
 
               <br></br>
-                <h2 style="display: inline;">Scripts</h2> <tooltip-text side="bottom">Some prompts are too advanced to be made up by static texts, they require script files that dynamically writes the prompts based on the ingame variables.</tooltip-text>
+                <h2 style="display: inline;" data-i18n="prompts.scripts">Scripts</h2> <tooltip-text side="bottom" data-i18n="prompts.scriptsTooltip">Some prompts are too advanced to be made up by static texts, they require script files that dynamically writes the prompts based on the ingame variables.</tooltip-text>
                 <br></br>
                 <div id="script-selectors" class="border">
       
                   <div class="input-group">
-                    <button type="button">🔄 Reload files</button>
+                    <button type="button" data-i18n="prompts.reloadFiles">🔄 Reload files</button>
                   </div>
                   
                   <div class="input-group">
-                    <label for="description-script-select">Character Description script</label>
+                    <label for="description-script-select" data-i18n="prompts.characterDescriptionScript">Character Description script</label>
                     <select id="description-script-select"></select>
-                    <open-folder-button path="scripts/prompts/description/" label="open folder"></open-folder-button>
+                    <open-folder-button path="scripts/prompts/description/" data-i18n-label="prompts.openFolder" label="open folder"></open-folder-button>
                   </div>
       
                   <div class="input-group">
-                    <label for="example-messages-script-select">Example messages script</label>
+                    <label for="example-messages-script-select" data-i18n="prompts.exampleMessagesScript">Example messages script</label>
                     <select id="example-messages-script-select">
                       
                     </select>
-                    <open-folder-button path="scripts/prompts/example messages/" label="open folder"></open-folder-button>
+                    <open-folder-button path="scripts/prompts/example messages/" data-i18n-label="prompts.openFolder" label="open folder"></open-folder-button>
                     
                   </div>
                   
@@ -99,6 +99,15 @@
     <script>require("../../dist/configWindow/components/tooltip.js")</script>
     <script>require("../../dist/configWindow/components/configCheckbox.js")</script>
     <script>require("../../dist/configWindow/components/configTextarea.js")</script>
+    <script>require("../../dist/configWindow/components/LanguageSelector.js")</script>
     <script>require("../../dist/configWindow/promptsRenderer.js")</script>
+    
+    <!-- 初始化本地化系统 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const { initializeLocalization } = require('../../dist/configWindow/utils/localization.js');
+        initializeLocalization();
+      });
+    </script>
   </body>
 </html>

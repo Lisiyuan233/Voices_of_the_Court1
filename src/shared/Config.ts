@@ -18,7 +18,8 @@ export class Config{
     maxMemoryTokens!: number;
     percentOfContextToSummarize!: number;
 
-    
+    // 多语言支持
+    language!: string;
 
     selectedDescScript!: string;
     selectedExMsgScript!: string;

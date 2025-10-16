@@ -1,53 +1,54 @@
 import {ipcRenderer } from 'electron';
 import { Config } from '../../shared/Config';
 import { ApiConnection } from '../../shared/apiConnection';
+import { i18n } from '../../shared/i18n';
 
 const template = document.createElement("template");
 
-function defineTemplate(label: string){
+function defineTemplate(){
     return `
     <link rel="stylesheet" href="../../public/configWindow/config.css">
     <style>
     </style>
     
     <div class="input-group">
-        <label for="connection-api">API</label>
+        <label for="connection-api" data-i18n="apiSelector.api"></label>
         <select name="connection-api" id="connection-api">
-            <option value="openrouter">OpenRouter</option>
-            <option value="ooba">Text Gen WebUI (ooba)</option>
-            <option value="openai">OpenAI</option>
-            <option value="gemini">Google Gemini</option>
-            <option value="custom">Custom (OpenAI-compatible)</option>
+            <option value="openrouter" data-i18n="apiSelector.openrouter"></option>
+            <option value="ooba" data-i18n="apiSelector.ooba"></option>
+            <option value="openai" data-i18n="apiSelector.openai"></option>
+            <option value="gemini" data-i18n="apiSelector.gemini"></option>
+            <option value="custom" data-i18n="apiSelector.custom"></option>
         </select> 
     </div>
     
     <div class="border">
         <div id="openrouter-menu">
-            <h2>OpenRouter</h2>
+            <h2 data-i18n="apiSelector.openrouter"></h2>
 
             <div class="input-group">
-            <label for="api-key">API Key</label>
+            <label for="api-key" data-i18n="apiSelector.apiKey"></label>
             <br>
             <input type="password" id="openrouter-key">
             </div>
         
             <div class="input-group">
-            <label for="openrouter-model">Model</label>
+            <label for="openrouter-model" data-i18n="apiSelector.model"></label>
             <input type="text" id="openrouter-model">
-            <a href="https://openrouter.ai/models" target="_blank">Browse models..</a>
+            <a href="https://openrouter.ai/models" target="_blank" data-i18n="apiSelector.browseModels"></a>
             </div>
 
             <div class="input-group">
             <input type="checkbox" id="openrouter-instruct-mode">
-            <label for="openrouter-instruct-mode">Force Instruct mode</label>
+            <label for="openrouter-instruct-mode" data-i18n="apiSelector.forceInstructMode"></label>
             </div>
         </div>
 
         <div id="ooba-menu">
-            <h2>Text-Gen-WebUI (Ooba)</h2>
+            <h2 data-i18n="apiSelector.ooba"></h2>
 
             <div class="input-group">
-                <label for="ooba-url">Server URL</label>
+                <label for="ooba-url" data-i18n="apiSelector.serverUrl"></label>
                 <br>
                 <input type="text" id="ooba-url">
                 <br>
@@ -56,16 +57,16 @@ function defineTemplate(label: string){
         </div>
 
         <div id="openai-menu">
-            <h2>OpenAI</h2>
+            <h2 data-i18n="apiSelector.openai"></h2>
 
             <div class="input-group">
-            <label for="api-key">API Key</label>
+            <label for="api-key" data-i18n="apiSelector.apiKey"></label>
             <br>
             <input type="password" id="openai-key">
             </div>
         
             <div class="input-group">
-            <label for="openai-model-select">Model</label>
+            <label for="openai-model-select" data-i18n="apiSelector.model"></label>
             <select id="openai-model-select">
                 <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Recommended)</option>
                 <option value="gpt-4o">GPT-4-o</option>
@@ -74,35 +75,35 @@ function defineTemplate(label: string){
         </div>
 
         <div id="gemini-menu">
-            <h2>Google Gemini</h2>
+            <h2 data-i18n="apiSelector.gemini"></h2>
 
             <div class="input-group">
-            <label for="api-key">API Key</label>
+            <label for="api-key" data-i18n="apiSelector.apiKey"></label>
             <br>
             <input type="password" id="gemini-key">
             </div>
         
             <div class="input-group">
-            <label for="gemini-model">Model</label>
+            <label for="gemini-model" data-i18n="apiSelector.model"></label>
             <input type="text" id="gemini-model" placeholder="e.g. gemini-2.5-pro">
             </div>
         </div>
 
         <div id="custom-menu">
-            <h2>Custom (Openai-compatible) endpoint</h2>
+            <h2 data-i18n="apiSelector.custom"></h2>
 
             <div class="input-group">
-                <label for="custom-url">Server URL</label>
+                <label for="custom-url" data-i18n="apiSelector.serverUrl"></label>
                 <br>
                 <input type="text" id="custom-url">
             </div>
             <div class="input-group">
-                <label for="custom-key">API Key</label>
+                <label for="custom-key" data-i18n="apiSelector.apiKey"></label>
                 <br>
                 <input type="password" id="custom-key">
             </div>
             <div class="input-group">
-                <label for="custom-model">Model</label>
+                <label for="custom-model" data-i18n="apiSelector.model"></label>
                 <br>
                 <input type="text" id="custom-model">
             </div>
@@ -111,11 +112,11 @@ function defineTemplate(label: string){
 
         <hr>
         <input type="checkbox" id="overwrite-context"/>
-        <label>Overwrite context size</label> <br>
+        <label data-i18n="apiSelector.overwriteContext"></label> <br>
         <input type="number" id="custom-context" min="0" style="width: 10%;"/>
     </div>
 
-  <button type="button" id="connection-test-button">Test Connection</button> <span id="connection-test-span"></span>`
+  <button type="button" id="connection-test-button" data-i18n="connection.testConnection"></button> <span id="connection-test-span"></span>`
 }
 
     
@@ -165,7 +166,7 @@ class ApiSelector extends HTMLElement{
         
 
         this.shadow = this.attachShadow({mode: "open"});
-        template.innerHTML = defineTemplate(this.label);
+        template.innerHTML = defineTemplate();
         this.shadow.append(template.content.cloneNode(true));
         this.checkbox = this.shadow.querySelector("input");
         
@@ -199,11 +200,38 @@ class ApiSelector extends HTMLElement{
 
         this.overwriteContextCheckbox = this.shadow.querySelector("#overwrite-context")!;
         this.customContextNumber = this.shadow.querySelector("#custom-context")!;
+
+        // 初始化本地化
+        this.localizeElements();
     }
 
 
     static get observedAttributes(){
         return ["name", "confID", "label"]
+    }
+
+    // 本地化元素
+    localizeElements() {
+        const elements = this.shadow.querySelectorAll('[data-i18n]');
+        elements.forEach((element: Element) => {
+            const i18nKey = element.getAttribute('data-i18n');
+            if (i18nKey) {
+                const keys = i18nKey.split('.');
+                let value: any = i18n.t(keys[0] as any);
+                
+                for (let i = 1; i < keys.length; i++) {
+                    if (value && typeof value === 'object') {
+                        value = value[keys[i]];
+                    } else {
+                        break;
+                    }
+                }
+                
+                if (typeof value === 'string') {
+                    element.textContent = value;
+                }
+            }
+        });
     }
 
     async connectedCallback(){
@@ -355,8 +383,18 @@ class ApiSelector extends HTMLElement{
             ipcRenderer.send('config-change-nested-nested', this.confID, "connection", "customContext", this.customContextNumber.value);
         })
 
-         
+        // 监听语言变更事件
+        window.addEventListener('languageChanged', this.handleLanguageChange.bind(this));
         
+    }
+
+    disconnectedCallback() {
+        // 清理事件监听器
+        window.removeEventListener('languageChanged', this.handleLanguageChange.bind(this));
+    }
+
+    private handleLanguageChange() {
+        this.localizeElements();
     }
 
     toggleCustomContext(){
