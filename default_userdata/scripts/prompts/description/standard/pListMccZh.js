@@ -19,6 +19,7 @@ module.exports = (gameData) =>{
     
     let playerPersonaItems = [
         `id(${player.id})`,
+        `姓名：${player.house}${player.firstName}`,
         mainPosition(player), 
         courtAndCouncilPositions(player), 
         houseAndStatus(player), 
@@ -34,6 +35,7 @@ module.exports = (gameData) =>{
     
     let aiPersonaItems = [
         `id(${ai.id})`,
+        `姓名：${ai.house}${ai.firstName}`,
         mainPosition(ai), 
         courtAndCouncilPositions(ai), 
         listRelationsToPlayer(ai), 
@@ -57,8 +59,8 @@ module.exports = (gameData) =>{
     aiPersonaItems = aiPersonaItems.filter(function(e){return e}); 
     
     let output = "";
-    output+= `\n[${player.house}${player.firstName}的角色信息: ${playerPersonaItems.join("; ")}]`;
-    output+=`\n[${ai.house}${ai.firstName}的角色信息: ${aiPersonaItems.join("; ")}]`;
+    output+= `\n[${player.shortName}'的角色信息: ${playerPersonaItems.join("; ")}]`;
+    output+=`\n[${ai.shortName}'的角色信息: ${aiPersonaItems.join("; ")}]`;
     
     if (gameData.characters.size > 2){
         gameData.characters.forEach((value, key) => {
@@ -66,6 +68,7 @@ module.exports = (gameData) =>{
             {
                 let secondaryAiItems = [
                     `id(${value.id})`,
+                    `姓名：${value.house}${value.firstName}`,
                     mainPosition(value), 
                     courtAndCouncilPositions(value), 
                     listRelationsToPlayer(value), 
@@ -81,7 +84,7 @@ module.exports = (gameData) =>{
                     age(value), 
                     `信仰：${value.faith}`, 
                     `民族：${value.culture}`]
-                output+=`\n[${value.house}${value.firstName}的角色信息: ${secondaryAiItems.join("; ")}]`;
+                output+=`\n[${value.shortName}'的角色信息: ${secondaryAiItems.join("; ")}]`;
             }
         })
     }
@@ -261,10 +264,16 @@ module.exports = (gameData) =>{
 
         switch (scene){
              //添加更多场景
+            case "family_meeting_east":
+                return `${player.shortName}召开了家族会议`;
+            case "huanghelou":
+                return `${ai.shortName}与${player.shortName}在黄鹤楼会见`;
+            case "yueyanglou":
+                return `${ai.shortName}与${player.shortName}在岳阳楼会见`;
             case "bedchamber_east1":
                 return `${ai.shortName}与${player.shortName}在卧室里对话`;
             case "garden_east1":
-                return `${ai.shortName}在御花园里与${player.shortName}对话`;
+                return `${ai.shortName}在御花园里与${player.shortName}会见`;
             case "throneroom_east_fuya1":
                 return `${ai.shortName}在府衙里拜见${player.shortName}`;
             case "throneroom_east_fuya":

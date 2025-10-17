@@ -146,7 +146,7 @@ ipcRenderer.on('chat-hide', () =>{
 })
 
 ipcRenderer.on('chat-start', (e, gameData: GameData) =>{   
-    playerName = gameData.playerName;
+    playerName = gameData.playerName.replace(/\s+/g, '');
     aiName = gameData.aiName;
     initChat();
     document.body.style.display = '';

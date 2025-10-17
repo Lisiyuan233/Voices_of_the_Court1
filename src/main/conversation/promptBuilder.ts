@@ -50,19 +50,6 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     const userDataPath = path.join(app.getPath('userData'), 'votc_data');
     const isSelfTalk = conv.gameData.playerID === conv.gameData.aiID;
 
-    if (isSelfTalk) {
-        chatPrompt.push({
-            role: "system",
-            content: parseVariables(conv.config.selfTalkPrompt, conv.gameData)
-        });
-        console.log('Added self-talk main prompt from config.');
-    } else {
-        chatPrompt.push({
-            role: "system",
-            content: "扮演角色" + character.house + character.firstName + "写一条回复"+ "\n" + parseVariables(conv.config.mainPrompt, conv.gameData)
-        });
-        console.log('Added standard main prompt.');
-    }
 
     chatPrompt.push({
         role: "system",
@@ -114,7 +101,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
 
     const descMessage: Message = {
         role: "system",
-        content: conv.description
+        content: "参与对话的角色：" + conv.description
     };
 
     insertMessageAtDepth(messages, descMessage, conv.config.descInsertDepth);
@@ -190,6 +177,21 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     }
 
     chatPrompt = chatPrompt.concat(messages);
+
+    if (isSelfTalk) {
+        chatPrompt.push({
+            role: "system",
+            content: parseVariables(conv.config.selfTalkPrompt, conv.gameData)
+        });
+        console.log('Added self-talk main prompt from config.');
+    } else {
+        chatPrompt.push({
+            role: "system",
+            content: "你的任务是扮演角色 " + character.house + character.firstName + "，为该角色写一条回复"+ "\n" + parseVariables(conv.config.mainPrompt, conv.gameData) + character.house + character.firstName + "的回复："
+        });
+        console.log('Added standard main prompt.');
+    }
+
 
     if(conv.config.enableSuffixPrompt){
         chatPrompt.push({
