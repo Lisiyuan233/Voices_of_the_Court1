@@ -6,6 +6,8 @@ import { ClipboardListener } from "./ClipboardListener.js";
 import { Conversation } from "./conversation/Conversation.js";
 import { GameData } from "../shared/gameData/GameData.js";
 import { parseLog } from "../shared/gameData/parseLog.js";
+import { parseLogForBookmarks } from "./parseLogforbookmarks.js";
+import { processBookmarkToSummary } from "./bookmarktosummary.js";
 import { Message} from "./ts/conversation_interfaces.js";
 import path from 'path';
 import fs from 'fs';
@@ -352,6 +354,39 @@ clipboardListener.on('VOTC:EFFECT_ACCEPTED', async () =>{
         console.warn('VOTC:EFFECT_ACCEPTED received but no active conversation.');
     }
     
+})
+
+clipboardListener.on('VOTC:BOOKMARK', async () => {
+    console.log('ClipboardListener: VOTC:BOOKMARK event detected.');
+    try {
+        // Wait briefly for log file to update
+        await sleep(250);
+        
+        // Parse the log file for bookmark data
+        const logFilePath = path.join(config.userFolderPath, 'logs', 'debug.log');
+        console.log(`Parsing log file for bookmark data: ${logFilePath}`);
+        
+        const bookmarkData = await parseLogForBookmarks(logFilePath);
+        if (!bookmarkData) {
+            console.error('Failed to parse bookmark data from log file.');
+            return;
+        }
+        
+        // Get the selected bookmark script from config
+        const bookmarkScriptPath = config.selectedBookmarkScript || 'standard/shaosong.json';
+        console.log(`Using bookmark script: ${bookmarkScriptPath}`);
+        
+        // Process the bookmark data and update conversation summaries
+        await processBookmarkToSummary(
+            bookmarkData,
+            path.join(app.getPath("userData"), 'votc_data'),
+            bookmarkScriptPath
+        );
+        
+        console.log('Bookmark processing completed successfully.');
+    } catch (error) {
+        console.error('Error processing VOTC:BOOKMARK event:', error);
+    }
 })
 
 //IPC 

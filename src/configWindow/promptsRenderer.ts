@@ -4,6 +4,7 @@ import path from 'path';
 
 let descScriptSelect: any = document.querySelector("#description-script-select")!;
 let exMessagesScriptSelect: any = document.querySelector("#example-messages-script-select")!;
+let bookmarkScriptSelect: any = document.querySelector("#bookmark-script-select")!;
 
 let scriptSelectorsDiv: HTMLDivElement = document.querySelector("#script-selectors")!;
 
@@ -29,6 +30,9 @@ async function init(){
     populateSelectWithFileNames(exMessagesScriptSelect,  path.join(userDataPath, 'scripts', 'prompts', 'example messages'), '.js');
     exMessagesScriptSelect.value = config.selectedExMsgScript;
 
+    populateSelectWithFileNames(bookmarkScriptSelect,  path.join(userDataPath, 'scripts', 'bookmarks'), '.json');
+    bookmarkScriptSelect.value = config.selectedBookmarkScript;
+
     togglePrompt(suffixPromptCheckbox.checkbox, suffixPromptTextarea.textarea);
 
     //events
@@ -41,6 +45,11 @@ async function init(){
     exMessagesScriptSelect.addEventListener('change', () =>{
 
         ipcRenderer.send('config-change', "selectedExMsgScript", exMessagesScriptSelect.value);
+    })
+
+    bookmarkScriptSelect.addEventListener('change', () =>{
+
+        ipcRenderer.send('config-change', "selectedBookmarkScript", bookmarkScriptSelect.value);
     })
 
 
@@ -68,21 +77,46 @@ function togglePrompt(checkbox: HTMLInputElement, textarea: HTMLTextAreaElement)
 }
 
 function populateSelectWithFileNames(selectElement: HTMLSelectElement, folderPath: string, fileExtension: string, ): void {
-    let standardFiles = fs.readdirSync(path.join(folderPath, 'standard')).filter(file => path.extname(file) === fileExtension);
-    let customFiles = fs.readdirSync(path.join(folderPath, 'custom')).filter(file => path.extname(file) === fileExtension);
+    // For bookmarks, we need to handle subfolders differently
+    if (folderPath.includes('bookmarks')) {
+        try {
+            if (fs.existsSync(folderPath)) {
+                const subfolders = fs.readdirSync(folderPath, { withFileTypes: true })
+                    .filter(dirent => dirent.isDirectory())
+                    .map(dirent => dirent.name);
 
-    for(const file of standardFiles) {
-        var el = document.createElement("option");
-        el.textContent = path.parse(file).name;
-        el.value = path.join('standard', file);
-        selectElement.appendChild(el);
+                for (const subfolder of subfolders) {
+                    const subfolderPath = path.join(folderPath, subfolder);
+                    const files = fs.readdirSync(subfolderPath).filter(file => path.extname(file) === fileExtension);
+                    
+                    for (const file of files) {
+                        var el = document.createElement("option");
+                        el.textContent = `${subfolder}/${path.parse(file).name}`;
+                        el.value = path.join(subfolder, file);
+                        selectElement.appendChild(el);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error reading bookmarks folder:', error);
+        }
+    } else {
+        // Original logic for other script types
+        let standardFiles = fs.readdirSync(path.join(folderPath, 'standard')).filter(file => path.extname(file) === fileExtension);
+        let customFiles = fs.readdirSync(path.join(folderPath, 'custom')).filter(file => path.extname(file) === fileExtension);
+
+        for(const file of standardFiles) {
+            var el = document.createElement("option");
+            el.textContent = path.parse(file).name;
+            el.value = path.join('standard', file);
+            selectElement.appendChild(el);
+        }
+
+        for(const file of customFiles) {
+            var el = document.createElement("option");
+            el.textContent = path.parse(file).name;
+            el.value = path.join('custom', file);
+            selectElement.appendChild(el);
+        }
     }
-
-    for(const file of customFiles) {
-        var el = document.createElement("option");
-        el.textContent = path.parse(file).name;
-        el.value = path.join('custom', file);
-        selectElement.appendChild(el);
-    }
-
 }

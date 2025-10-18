@@ -1,0 +1,15 @@
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 2 (log_hmd_playergamedata): VOTC:BOOKMARK/;/hmd_start
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 3 (log_hmd_playergamedata): VOTC:BOOKMARK/;/hmd_gameinfo_head_start
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 4 (log_hmd_playergamedata): VOTC:BOOKMARK/;/time/;/1127年12月12日/;/公元1127年12月12日
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 5 (log_hmd_playergamedata): VOTC:BOOKMARK/;/playerdate/;/78142/;/赵构
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 6 (log_hmd_playergamedata): VOTC:BOOKMARK/;/hmd_gameinfo_head_end
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 11 (hmd_effect): VOTC:BOOKMARK/;/hmd_charinfo_start
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/73066/;/平家貞/
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/73067/;/刘益/
+[00:16:35][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/73068/;/刘氏/
+[00:16:36][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/102786/;/多诃蜜旬/
+[00:16:36][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/102787/;/汧摩罗阇/
+[00:16:36][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/102788/;/汧竺文/
+[00:16:36][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 13 (hmd_effect): VOTC:BOOKMARK/;/character/;/102789/;/汧执头/
+[00:16:36][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 19 (hmd_end_effect): VOTC:BOOKMARK/;/hmd_charinfo_end
+[00:16:36][D][jomini_effect_impl.cpp:446]: file: common/scripted_effects/hmd_effect.txt line: 20 (hmd_end_effect): VOTC:BOOKMARK/;/hmd_end

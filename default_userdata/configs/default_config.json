@@ -6,6 +6,7 @@
 	"percentOfContextToSummarize": 40,
 	"selectedDescScript": "standard\\pListMcc.js",
 	"selectedExMsgScript": "standard\\mccAliChat.js",
+	"selectedBookmarkScript": "",
 	"selectedSelfTalkExMsgScript": "standard\\default.js",
 	"inputSequence": "[INST]",
     "outputSequence": "[/INST]",

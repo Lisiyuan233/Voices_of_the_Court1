@@ -298,6 +298,15 @@ function parseGameDate(dateStr: string): Date | null {
         return new Date(parseInt(str), 0, 1);
     }
 
+    // Handle Chinese date format (e.g., "1179年1月26日")
+    const chineseDateMatch = str.match(/^(\d+)年(\d+)月(\d+)日$/);
+    if (chineseDateMatch) {
+        const year = parseInt(chineseDateMatch[1]);
+        const month = parseInt(chineseDateMatch[2]) - 1; // JavaScript months are 0-indexed
+        const day = parseInt(chineseDateMatch[3]);
+        return new Date(year, month, day);
+    }
+
     // Attempt to parse with the native constructor for standard/English formats.
     const date = new Date(str);
 
@@ -311,48 +320,31 @@ function parseGameDate(dateStr: string): Date | null {
 }
 
 function getDateDifference(pastDate: string, todayDate: string): string{
+    // Use parseGameDate to handle both English and Chinese date formats
+    const pastDateObj = parseGameDate(pastDate);
+    const todayDateObj = parseGameDate(todayDate);
 
-    const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ];
+    // If either date can't be parsed, return a default string
+    if (!pastDateObj || !todayDateObj) {
+        return "unknown time ago";
+    }
 
-      const past = {
-        day: Number(pastDate.split(" ")[0]),
-        month: months.indexOf(pastDate.split(" ")[1]),
-        year: Number(pastDate.split(" ")[2])
-      }
+    // Calculate the difference in days
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const totalDays = Math.floor((todayDateObj.getTime() - pastDateObj.getTime()) / msPerDay);
 
-      const today = {
-        day: Number(todayDate.split(" ")[0]),
-        month: months.indexOf(todayDate.split(" ")[1]),
-        year: Number(todayDate.split(" ")[2])
-      }
-
-      let totalDays = (today.year - past.year) * 365 + (today.month - past.month) * 30 + (today.day - past.day);
-
-      if(totalDays > 365){
+    if(totalDays > 365){
         return Math.round(totalDays/365) + " years ago"
-      }
-      else if(totalDays >= 30){
+    }
+    else if(totalDays >= 30){
         return Math.round(totalDays/30) + " months ago"
-      }
-      else if(totalDays > 0){
+    }
+    else if(totalDays > 0){
         return totalDays + " days ago"
-      }
-      else{
+    }
+    else{
         return "today"
-      }
+    }
 }
 
 

@@ -22,6 +22,7 @@ export class Config{
 
     selectedDescScript!: string;
     selectedExMsgScript!: string;
+    selectedBookmarkScript!: string;
 
     inputSequence!: string;
     outputSequence!: string;
