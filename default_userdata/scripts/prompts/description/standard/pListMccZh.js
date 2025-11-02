@@ -266,8 +266,20 @@ module.exports = (gameData) =>{
              //添加更多场景
             case "family_meeting_east":
                 return `${player.shortName}召开了家族会议`;
+            case "yungangshiku":
+                return `${ai.shortName}与${player.shortName}在云冈石窟见面`;
+            case "leshandafou":
+                return `${ai.shortName}与${player.shortName}在乐山大佛见面`;
+            case "taishan":
+                return `${ai.shortName}与${player.shortName}在泰山见面`;
+            case "wulingyuan":
+                return `${ai.shortName}与${player.shortName}在武陵源见面`;
+            case "kaifenghuangcheng":
+                return `${ai.shortName}与${player.shortName}在开封皇城会见`;
             case "huanghelou":
                 return `${ai.shortName}与${player.shortName}在黄鹤楼会见`;
+            case "tengwangge":
+                return `${ai.shortName}与${player.shortName}在滕王阁会见`;
             case "yueyanglou":
                 return `${ai.shortName}与${player.shortName}在岳阳楼会见`;
             case "bedchamber_east1":
