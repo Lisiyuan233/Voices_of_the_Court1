@@ -19,7 +19,7 @@ module.exports = (gameData) =>{
     
     let playerPersonaItems = [
         `id(${player.id})`,
-        `姓名：${player.house}${player.firstName}`,
+        `姓名：${player.firstName}`,
         mainPosition(player), 
         courtAndCouncilPositions(player), 
         houseAndStatus(player), 
@@ -35,7 +35,7 @@ module.exports = (gameData) =>{
     
     let aiPersonaItems = [
         `id(${ai.id})`,
-        `姓名：${ai.house}${ai.firstName}`,
+        `姓名：${ai.firstName}`,
         mainPosition(ai), 
         courtAndCouncilPositions(ai), 
         listRelationsToPlayer(ai), 
@@ -68,7 +68,7 @@ module.exports = (gameData) =>{
             {
                 let secondaryAiItems = [
                     `id(${value.id})`,
-                    `姓名：${value.house}${value.firstName}`,
+                    `姓名：${value.firstName}`,
                     mainPosition(value), 
                     courtAndCouncilPositions(value), 
                     listRelationsToPlayer(value), 
