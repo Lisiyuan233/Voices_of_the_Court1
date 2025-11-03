@@ -17,7 +17,7 @@ module.exports = {
             desc: "The position to which the {{playerName}} decided to assing {{aiName}} to the council. BE CAREFULL! You must choose ONLY from this variants: marshal, steward, spymaster, chancellor"
         } 
     ],
-    description: `Run only if the {{playerName}} announces that the {{aiName}} is now appointed to their council! WARNING! Execute ONLY if {{playerName}} diseide to assign {{aiName}} as marshal, steward, spymaster, chancellor`,
+    description: `仅在{{playerName}}宣布{{aiName}}现在被任命到其内阁时运行！警告！仅在{{playerName}}决定任命{{aiName}}为元帅、管家、间谍首脑或大臣时执行`,
 
     /**
      * @param {GameData} gameData 
@@ -118,7 +118,7 @@ module.exports = {
     },    
 
     chatMessage: (args) =>{
-        return `You assign {{aiName}} to council as ${args[0]}`
+        return `你任命{{aiName}}为内阁的${args[0]}`
     },
     chatMessageClass: "positive-action-message"
 }

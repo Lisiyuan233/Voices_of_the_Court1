@@ -10,7 +10,7 @@ module.exports = {
             desc: "the reason (the event) that made them become rivals with eachother. (write it in past tense)."
         }
     ],
-    description: "Execute when {{playerName}} and {{aiName}} became fierce rivals with eachother.",
+    description: "当{{playerName}}和{{aiName}}成为彼此的仇人时执行。",
 
     /**
      * @param {GameData} gameData 
@@ -38,7 +38,7 @@ module.exports = {
         gameData.getAi().relationsToPlayer.push("Rival");
     },
     chatMessage: (args) =>{
-        return `{{aiName}} has become your rival.`
+        return `{{aiName}}成为了你的仇人。`
     },
     chatMessageClass: "negative-action-message"
 }

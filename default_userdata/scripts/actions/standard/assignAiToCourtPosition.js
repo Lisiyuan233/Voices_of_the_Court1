@@ -17,7 +17,7 @@ module.exports = {
             desc: "The court position to which the {{playerName}} decided to assign {{aiName}}. BE CAREFULL! You must choose ONLY from these variants: physician, keeper_of_swans, travel_leader, master_of_horse, court_jester, master_of_hunt, high_almoner, cupbearer, seneschal, antiquarian, tutor, royal_architect, court_poet, bodyguard, court_champion, musician, food_taster, lady_in_waiting, garuda, chief_eunuch, court_gardener, chief_qadi, wet_nurse, akolouthos"
         } 
     ],
-    description: `Execute if {{playerName}} decides to assign {{aiName}} to court position of {{playerName}}'s council.`,
+    description: `当{{playerName}}决定将{{aiName}}分配到{{playerName}}宫廷的宫廷职位时执行。`,
 
     /**
      * @param {GameData} gameData 
@@ -337,7 +337,7 @@ module.exports = {
     },    
 
     chatMessage: (args) =>{
-        return `You assign {{aiName}} to ${args[0]} position`
+        return `你任命{{aiName}}为${args[0]}职位`
     },
     chatMessageClass: "neutral-action-message"
 }

@@ -11,7 +11,7 @@ v0.1.0
 module.exports = {
     signature: "fireAiFromCouncil",
     args: [],
-    description: `Execute if {{playerName}} decides to fire/dismiss/retire {{aiName}} from {{playerName}}'s council.`,
+    description: `当{{playerName}}决定从{{playerName}}的内阁中解雇/开除/退休{{aiName}}时执行。`,
 
     /**
      * @param {GameData} gameData 
@@ -46,7 +46,7 @@ module.exports = {
     },    
 
     chatMessage: (args) =>{
-        return `You fired {{aiName}} from council`
+        return `你将{{aiName}}从内阁中开除`
     },
     chatMessageClass: "negative-action-message"
 }

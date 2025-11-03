@@ -266,6 +266,8 @@ module.exports = (gameData) =>{
              //添加更多场景
             case "family_meeting_east":
                 return `${player.shortName}召开了家族会议`;
+            case "wudangshandaoguan":
+                return `${ai.shortName}与${player.shortName}在武当山道观见面`;
             case "yungangshiku":
                 return `${ai.shortName}与${player.shortName}在云冈石窟见面`;
             case "leshandafou":

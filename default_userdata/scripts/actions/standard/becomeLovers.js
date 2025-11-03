@@ -10,7 +10,7 @@ module.exports = {
             desc: "the reason (the event) that made them become lovers of each other. (write it in past tense)."
         }
     ],
-    description: "Execute when {{playerName}} and {{aiName}} became have good, great or amazing sex with each other and become lovers.",
+    description: "当{{playerName}}和{{aiName}}发生良好、出色或惊人的性关系并成为恋人时执行。",
 
     /**
      * @param {GameData} gameData 
@@ -38,7 +38,7 @@ module.exports = {
 		gameData.getAi().relationsToPlayer.push("Lover");
     },
     chatMessage: (args) =>{
-        return `{{aiName}} has become your lover.`
+        return `{{aiName}}成为了你的恋人。`
     },
     chatMessageClass: "positive-action-message"
 }

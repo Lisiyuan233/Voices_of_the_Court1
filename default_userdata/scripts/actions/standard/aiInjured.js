@@ -10,7 +10,7 @@ module.exports = {
             desc: "Type of injury inflicted on {{aiName}} by {{playerName}}. Possible values: injured if simple injure, remove_eye, blind if it last eye, cut_leg, cut_balls, disfigured"
         }
     ],
-    description: `execute when the {{playerName}} injures the {{aiName}} in various ways, based on the injuryType argument`,
+    description: `当{{playerName}}根据injuryType参数以各种方式伤害{{aiName}}时执行`,
     
     check: (gameData) => {
         // Always return true for now
@@ -218,17 +218,17 @@ module.exports = {
         let injuryType = args[0]
 		switch (injuryType) {
 			case 'remove_eye':
-				return "You have removed an eye from the {{aiName}} character.";
+				return "你挖去了{{aiName}}的一只眼睛。";
 			case 'blind':
-				return "You have blinded the {{aiName}} character.";
+				return "你使{{aiName}}失明了。";
 			case 'cut_leg':
-				return "You have cut off the {{aiName}} character's leg.";
+				return "你砍断了{{aiName}}的腿。";
 			case 'cut_balls':
-				return "You have castrated the {{aiName}} character.";
+				return "你阉割了{{aiName}}。";
 			case 'disfigured':
-				return "You have disfigured the {{aiName}} character.";
+				return "你毁容了{{aiName}}。";
 			default:
-				return "You have injured the {{aiName}} character.";
+				return "你伤害了{{aiName}}。";
 		}
 	},
 		
