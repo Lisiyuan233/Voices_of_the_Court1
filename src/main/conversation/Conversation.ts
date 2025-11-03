@@ -292,23 +292,32 @@ export class Conversation{
         if (this.gameData.playerID !== this.gameData.aiID) {
             if (character.id === this.gameData.aiID){
                 let collectedActions: ActionResponse[];
+                let narrative: string = "";
+                
                 if(this.config.actionsEnableAll){
                     try{
                         console.log('Actions are enabled. Checking for actions...');
-                        collectedActions = await checkActions(this);
+                        const actionResult = await checkActions(this);
+                        collectedActions = actionResult.actions;
+                        narrative = actionResult.narrative;
                     }
                     catch(e){
                         console.error(`Error during action check: ${e}`);
                         collectedActions = [];
+                        narrative = "";
                     }
                 }
                 else{
                     console.log('Actions are disabled in config.');
                     collectedActions = [];
+                    narrative = "";
                 }
     
-                this.chatWindow.window.webContents.send('actions-receive', collectedActions);    
+                this.chatWindow.window.webContents.send('actions-receive', collectedActions, narrative);    
                 console.log(`Sent ${collectedActions.length} actions to chat window.`);
+                if (narrative) {
+                    console.log(`Sent narrative: ${narrative}`);
+                }
             }
         }
     }

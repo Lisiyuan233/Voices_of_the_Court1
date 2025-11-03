@@ -3,8 +3,9 @@ import { Config } from "../../shared/Config";
 import { convertMessagesToString } from "./promptBuilder";
 import { Message, Action, ActionResponse } from "../ts/conversation_interfaces";
 import { parseVariables } from "../parseVariables";
+import { generateNarrative } from "./generateNarrative";
 
-export async function checkActions(conv: Conversation): Promise<ActionResponse[]>{
+export async function checkActions(conv: Conversation): Promise<{actions: ActionResponse[], narrative: string}>{
     console.log('Starting action check.');
     let availableActions: Action[] = [];
 
@@ -39,7 +40,7 @@ export async function checkActions(conv: Conversation): Promise<ActionResponse[]
 
     if(!response.match(/<rationale>(.*?)<\/?rationale>/) || !response.match(/<actions>(.*?)<\/?actions>/)){
         console.warn("Action warning: rationale or action couldn't be extracted from LLM response. Response: "+ response);
-        return [];
+        return { actions: [], narrative: "" };
     }
 
     const rationale = response.match(/<rationale>(.*?)<\/rationale>/)![1];
@@ -50,7 +51,7 @@ export async function checkActions(conv: Conversation): Promise<ActionResponse[]
 
     if(actionsString === "noop()"){
         console.log('LLM returned "noop()", no actions triggered.');
-        return [];
+        return { actions: [], narrative: "" };
     }
 
     const actions = actionsString.split(',');
@@ -160,7 +161,20 @@ export async function checkActions(conv: Conversation): Promise<ActionResponse[]
     );
     
     console.log(`Final triggered actions: ${triggeredActions.map(a => a.actionName).join(', ')}`);
-    return triggeredActions;
+    
+    // 生成AI旁白
+    let narrative = "";
+    if (triggeredActions.length > 0 && conv.config.narrativeEnable) {
+        try {
+            narrative = await generateNarrative(conv, triggeredActions);
+            console.log(`Generated narrative: ${narrative}`);
+        } catch (e) {
+            console.error(`Error generating narrative: ${e}`);
+            narrative = "";
+        }
+    }
+    
+    return { actions: triggeredActions, narrative: narrative };
 }
 
 function buildActionChatPrompt(conv: Conversation, actions: Action[]): Message[]{
@@ -217,7 +231,7 @@ output.push({
     return output;
 }
 
-function convertChatToTextPrompt(messages: Message[], config: Config): string{
+export function convertChatToTextPrompt(messages: Message[], config: Config): string{
     let output: string = "";
     for(let msg of messages){
         if(msg.role === "user"){

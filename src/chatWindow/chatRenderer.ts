@@ -54,6 +54,21 @@ async function displayMessage(message: Message): Promise<HTMLDivElement>{
     return messageDiv;
 }
 
+function displayNarrative(narrative: string) {
+    if (!narrative) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message');
+    messageDiv.classList.add('narrative-message');
+    
+    const narrativeSpan = document.createElement('span');
+    narrativeSpan.innerText = narrative;
+    messageDiv.appendChild(narrativeSpan);
+    
+    chatMessages.append(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
 function displayActions(actions: ActionResponse[]){
     
     const messageDiv = document.createElement('div');
@@ -165,8 +180,9 @@ ipcRenderer.on('message-receive', async (e, message: Message, waitForActions: bo
     
 })
 
-ipcRenderer.on('actions-receive', async (e, actionsResponse: ActionResponse[]) =>{
+ipcRenderer.on('actions-receive', async (e, actionsResponse: ActionResponse[], narrative: string) =>{
     displayActions(actionsResponse);
+    displayNarrative(narrative);
 
     removeLoadingDots();
 })
@@ -185,8 +201,9 @@ ipcRenderer.on('stream-message', (e, message: Message)=>{
     //@ts-ignore
 })
 
-ipcRenderer.on('stream-end', (e, actions: ActionResponse[])=>{
+ipcRenderer.on('stream-end', (e, actions: ActionResponse[], narrative: string) =>{
     displayActions(actions);
+    displayNarrative(narrative);
     removeLoadingDots();
 })
 

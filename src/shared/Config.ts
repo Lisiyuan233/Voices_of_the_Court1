@@ -35,6 +35,7 @@ export class Config{
     actionsUseTextGenApi!: boolean;
 
     actionsEnableAll!: boolean;
+    narrativeEnable!: boolean;
     disabledActions!: string[];
 
     cleanMessages!: boolean;
@@ -53,6 +54,7 @@ export class Config{
     selfTalkPrompt!: string;
     selectedSelfTalkExMsgScript!: string;
     selfTalkSummarizePrompt!: string;
+    narrativePrompt!: string;
 
     constructor(configPath: string){  
         const obj = JSON.parse(fs.readFileSync(configPath).toString());

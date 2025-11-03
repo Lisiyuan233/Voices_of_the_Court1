@@ -55,6 +55,12 @@
                         <config-checkbox id="suffix-prompt-checkbox" confID="enableSuffixPrompt" label="Suffix prompt"></config-checkbox> <tooltip-text side="top">If enabled, suffix prompt is inserted as the last (system) message before sending the API request, it's useful for jailbreaking, or instructing the model on how to format the response message.</tooltip-text>
                         <config-textarea id="suffix-prompt-textarea" confID="suffixPrompt" rows="6"></config-textarea> 
                     </div>
+
+                    <div class="input-group">
+                        Narrative prompt
+                        <tooltip-text side="top">This prompt is used to generate AI narrative descriptions after actions are triggered. The narrative provides atmospheric descriptions of events in the game.</tooltip-text>
+                        <config-textarea confID="narrativePrompt" rows="6"></config-textarea>
+                    </div>
                 </div>
                 
             </div>
