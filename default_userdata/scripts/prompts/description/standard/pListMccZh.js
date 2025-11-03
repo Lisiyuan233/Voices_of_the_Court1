@@ -266,6 +266,18 @@ module.exports = (gameData) =>{
              //添加更多场景
             case "family_meeting_east":
                 return `${player.shortName}召开了家族会议`;
+            case "cabinet_meeting_chinese_empire":
+                return `${player.shortName}召开了中枢会议`;
+            case "cabinet_meeting":
+                return `${player.shortName}召开了内阁会议`;
+            case "cabinet_meeting_chinese":
+                return `${player.shortName}召开了内阁会议`;
+            case "lingyinsi":
+                return `${ai.shortName}与${player.shortName}在灵隐寺会见`;
+            case "throneroom_japan":
+                return `${ai.shortName}与${player.shortName}在平安宫会见`;
+            case "shaolinsidai":
+                return `${ai.shortName}与${player.shortName}在少林寺见面`;
             case "wudangshandaoguan":
                 return `${ai.shortName}与${player.shortName}在武当山道观见面`;
             case "yungangshiku":
@@ -306,7 +318,7 @@ module.exports = (gameData) =>{
                 return `${ai.shortName}在私人寝宫接待${player.shortName}`;
             case "feast":
                 return `${ai.shortName}在${locationController}举办的宴会上与${player.shortName}交谈`;
-            case "army_camp":
+            case "armycamp":
                 return `${ai.shortName}在军营中会见${player.shortName}`;
             case "hunt":
                 return `${ai.shortName}在迷雾森林狩猎时遇见${player.shortName}，他们都拿着弓箭`;
