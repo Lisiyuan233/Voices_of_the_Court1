@@ -27,7 +27,8 @@ module.exports = {
      */
     run: (gameData, runGameEffect, args) => {
         runGameEffect(`
-            trigger = {
+            if = {
+            limit = {
                 global_var:talk_second_scope = {
                     exists = liege
                     liege = global_var:talk_first_scope
@@ -37,11 +38,12 @@ module.exports = {
                         has_council_position = councillor_steward
                         has_council_position = councillor_spymaster
                         has_council_position = councillor_court_chaplain
-                    }
+                        }
                     can_be_fired_from_council_trigger = { COURT_OWNER = root }
+                    }
                 }
-            }
             global_var:talk_first_scope = { fire_councillor = global_var:talk_second_scope }
+            }
         `);
     },    
 

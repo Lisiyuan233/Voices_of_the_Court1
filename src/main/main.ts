@@ -203,7 +203,7 @@ app.on('ready',  async () => {
     if (app.isPackaged && config.checkForUpdatesOnStartup) {
         console.log('Initializing automatic update check on startup...');
         updateElectronApp({
-            repo: 'szmania/Voices_of_the_Court', // Explicitly set repository to fix updater crash
+            repo: 'Lisiyuan233/Voices_of_the_Court1', // Explicitly set repository to fix updater crash
             logger: {
                 info: (message) => console.info(`[Updater] ${message}`),
                 warn: (message) => console.warn(`[Updater] ${message}`),
