@@ -11,7 +11,7 @@ export interface apiConnectionTestResult{
 }
 
 export interface Connection{
-    type: string; //openrouter, openai, ooba
+    type: string; //openrouter, openai, ooba, gemini, glm
     baseUrl: string;
     key: string;
     model: string;
@@ -45,7 +45,7 @@ export class ApiConnection{
         console.debug("Received connection:", redactedConnection);
         console.debug("Received parameters:", parameters);
         this.type = connection.type;
-        if(this.type !== 'gemini'){
+        if(this.type !== 'gemini' && this.type !== 'glm'){
             this.client = new OpenAI({
                 baseURL: connection.baseUrl,
                 apiKey: connection.key,
@@ -102,7 +102,7 @@ export class ApiConnection{
 
     isChat(): boolean {
         console.debug(`--- API CONNECTION: isChat() check. Type: ${this.type}, forceInstruct: ${this.forceInstruct}`);
-        if(this.type === "openai" || (this.type === "openrouter" && !this.forceInstruct ) || this.type === "custom" || this.type === 'gemini'){
+        if(this.type === "openai" || (this.type === "openrouter" && !this.forceInstruct ) || this.type === "custom" || this.type === 'gemini' || this.type === 'glm'){
             console.debug("isChat() is returning true");
             return true;
         }
@@ -231,6 +231,105 @@ export class ApiConnection{
                         else {
                             console.error("Invalid Gemini response:", data);
                             throw new Error("Invalid response from Gemini API");
+                        }
+                    }
+                }
+                
+                if (this.type === 'glm') {
+                    // GLM API uses OpenAI-compatible format but requires custom headers
+                    const url = stream 
+                        ? `${this.client.baseURL}/chat/completions`
+                        : `${this.client.baseURL}/chat/completions`;
+
+                    // GLM expects standard OpenAI message format but doesn't support system role
+                    // Convert system messages to user messages only if there are no user messages
+                    const hasUserMessage = (prompt as Message[]).some(msg => msg.role === 'user');
+                    const messages = (prompt as Message[]).map(msg => {
+                        if (msg.role === 'system' && !hasUserMessage) {
+                            return {
+                                role: 'user',
+                                content: msg.content
+                            };
+                        }
+                        return {
+                            role: msg.role,
+                            name: msg.name,
+                            content: msg.content
+                        };
+                    });
+
+                    const requestBody = {
+                        model: this.model,
+                        messages: messages,
+                        stream: stream,
+                        temperature: this.parameters.temperature,
+                        top_p: this.parameters.top_p,
+                        frequency_penalty: this.parameters.frequency_penalty,
+                        presence_penalty: this.parameters.presence_penalty,
+                        thinking: {
+                            type: "disabled"
+                        },
+                        ...otherArgs
+                    };
+                    console.debug("Making GLM request with body:", JSON.stringify(requestBody, null, 2));
+
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.client.apiKey}`
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        console.error("GLM API Error:", errorText);
+                        throw new Error(`GLM API error: ${res.status} ${errorText}`);
+                    }
+
+                    if (stream) {
+                        const reader = res.body!.getReader();
+                        const decoder = new TextDecoder();
+                        let responseText = "";
+                        let buffer = "";
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop() || ""; // Keep the last partial line in buffer
+
+                            for (const line of lines) {
+                                if (line.startsWith('data: ')) {
+                                    try {
+                                        const jsonStr = line.substring(6);
+                                        if (jsonStr === '[DONE]') {
+                                            continue;
+                                        }
+                                        const parsed = JSON.parse(jsonStr);
+                                        if (parsed.choices && parsed.choices[0].delta.content) {
+                                            const textChunk = parsed.choices[0].delta.content;
+                                            streamRelay!({ content: textChunk });
+                                            responseText += textChunk;
+                                        }
+                                    } catch (e) {
+                                        console.error("Error parsing GLM stream chunk:", e, line);
+                                    }
+                                }
+                            }
+                        }
+                        return responseText;
+                    } else {
+                        const data = await res.json();
+                        console.debug("Received GLM non-stream response:", data);
+                        if (data.choices && data.choices[0].message.content) {
+                            return data.choices[0].message.content;
+                        } else {
+                            console.error("Invalid GLM response:", data);
+                            throw new Error("Invalid response from GLM API");
                         }
                     }
                 }
@@ -425,6 +524,40 @@ export class ApiConnection{
                 return { success: false, overwriteWarning: false, errorMessage: String(err) };
             }
         }
+        
+        if (this.type === 'glm') {
+            const url = `${this.client.baseURL}/chat/completions`;
+            const body = {
+                model: this.model,
+                messages: [{ role: "user", content: "ping" }],
+                max_tokens: 1,
+                thinking: {
+                    type: "disabled"
+                }
+            };
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.client.apiKey}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0) {
+                    return { success: true, overwriteWarning: this.overwriteWarning };
+                } else {
+                    return { success: false, overwriteWarning: false, errorMessage: data.error?.message || "Invalid response from GLM" };
+                }
+            } catch (err) {
+                if (err instanceof Error) {
+                    return { success: false, overwriteWarning: false, errorMessage: err.message };
+                }
+                return { success: false, overwriteWarning: false, errorMessage: String(err) };
+            }
+        }
+        
         let prompt: string | Message[];
         if(this.isChat()){
             prompt = [

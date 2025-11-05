@@ -17,6 +17,7 @@ function defineTemplate(label: string){
             <option value="ooba">Text Gen WebUI (ooba)</option>
             <option value="openai">OpenAI</option>
             <option value="gemini">Google Gemini</option>
+            <option value="glm">GLM</option>
             <option value="custom">Custom (OpenAI-compatible)</option>
         </select> 
     </div>
@@ -88,6 +89,28 @@ function defineTemplate(label: string){
             </div>
         </div>
 
+        <div id="glm-menu">
+            <h2>GLM</h2>
+
+            <div class="input-group">
+            <label for="api-key">API Key</label>
+            <br>
+            <input type="password" id="glm-key">
+            </div>
+        
+            <div class="input-group">
+            <label for="glm-model-select">Model</label>
+            <select id="glm-model-select">
+                <option value="glm-4.6">GLM-4.6</option>
+                <option value="glm-4.5">GLM-4.5</option>
+                <option value="glm-4.5-x">GLM-4.5-X</option>
+                <option value="glm-4.5-flash">GLM-4.5-Flash</option>
+                <option value="glm-4.5-air">GLM-4.5-Air</option>
+                <option value="glm-4.5-airx">GLM-4.5-AirX</option>
+            </select>
+            </div>
+        </div>
+
         <div id="custom-menu">
             <h2>Custom (Openai-compatible) endpoint</h2>
 
@@ -132,12 +155,16 @@ class ApiSelector extends HTMLElement{
     openrouterDiv: HTMLDivElement 
     customDiv: HTMLDivElement 
     geminiDiv: HTMLDivElement
+    glmDiv: HTMLDivElement
 
     openaiKeyInput: HTMLInputElement 
     openaiModelSelect: HTMLSelectElement 
 
     geminiKeyInput: HTMLInputElement 
     geminiModelInput: HTMLInputElement 
+
+    glmKeyInput: HTMLInputElement 
+    glmModelSelect: HTMLSelectElement 
 
     oobaUrlInput: HTMLSelectElement 
     oobaUrlConnectButton: HTMLInputElement 
@@ -176,12 +203,16 @@ class ApiSelector extends HTMLElement{
         this.openrouterDiv = this.shadow.querySelector("#openrouter-menu")!;
         this.customDiv = this.shadow.querySelector("#custom-menu")!;
         this.geminiDiv = this.shadow.querySelector("#gemini-menu")!;
+        this.glmDiv = this.shadow.querySelector("#glm-menu")!;
 
         this.openaiKeyInput = this.shadow.querySelector("#openai-key")!;
         this.openaiModelSelect = this.shadow.querySelector("#openai-model-select")!;
 
         this.geminiKeyInput = this.shadow.querySelector("#gemini-key")!;
         this.geminiModelInput = this.shadow.querySelector("#gemini-model")!;
+
+        this.glmKeyInput = this.shadow.querySelector("#glm-key")!;
+        this.glmModelSelect = this.shadow.querySelector("#glm-model-select")!;
 
         this.oobaUrlInput = this.shadow.querySelector("#ooba-url")!;
         this.oobaUrlConnectButton = this.shadow.querySelector("#ooba-url-connect")!;
@@ -246,6 +277,10 @@ class ApiSelector extends HTMLElement{
             this.geminiKeyInput.value = apiConfig.key;
             this.geminiModelInput.value = apiConfig.model;
         }
+        else if(apiConfig.type == "glm"){
+            this.glmKeyInput.value = apiConfig.key;
+            this.glmModelSelect.value = apiConfig.model;
+        }
         
         this.openrouterInstructModeCheckbox.checked = apiConfig.forceInstruct;
 
@@ -272,6 +307,9 @@ class ApiSelector extends HTMLElement{
                 case 'gemini': 
                     this.saveGeminiConfig();
                 break;
+                case 'glm': 
+                    this.saveGlmConfig();
+                break;
                 case 'custom': 
                     this.saveCustomConfig();
                 break;
@@ -297,6 +335,10 @@ class ApiSelector extends HTMLElement{
 
         this.geminiDiv.addEventListener("change", (e:any) =>{
             this.saveGeminiConfig();
+        })
+
+        this.glmDiv.addEventListener("change", (e:any) =>{
+            this.saveGlmConfig();
         })
 
         this.testConnectionButton.addEventListener('click', async (e:any) =>{
@@ -377,6 +419,7 @@ class ApiSelector extends HTMLElement{
         this.openrouterDiv.style.display = "none";
         this.customDiv.style.display = "none";
         this.geminiDiv.style.display = "none";
+        this.glmDiv.style.display = "none";
 
         switch (this.typeSelector.value) {
             case 'openai':  
@@ -393,6 +436,9 @@ class ApiSelector extends HTMLElement{
                 break;
             case 'gemini':
                 this.geminiDiv.style.display = "block";
+                break;
+            case 'glm':
+                this.glmDiv.style.display = "block";
                 break;
         }
     }
@@ -469,6 +515,19 @@ class ApiSelector extends HTMLElement{
             baseUrl: "https://generativelanguage.googleapis.com/v1beta",
             key: this.geminiKeyInput.value,
             model: this.geminiModelInput.value,
+            forceInstruct: false,
+            overwriteContext: this.overwriteContextCheckbox.checked,
+            customContext: this.customContextNumber.value
+        }
+        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+    }
+
+    saveGlmConfig(){
+        const newConf = {
+            type: "glm",
+            baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+            key: this.glmKeyInput.value,
+            model: this.glmModelSelect.value,
             forceInstruct: false,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value

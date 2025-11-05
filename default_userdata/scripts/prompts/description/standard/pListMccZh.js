@@ -59,7 +59,7 @@ module.exports = (gameData) =>{
     aiPersonaItems = aiPersonaItems.filter(function(e){return e}); 
     
     let output = "";
-    output+= `\n[${player.shortName}'的角色信息: ${playerPersonaItems.join("; ")}]`;
+    output+= `\n[${player.shortName}'（user）的角色信息: ${playerPersonaItems.join("; ")}]`;
     output+=`\n[${ai.shortName}'的角色信息: ${aiPersonaItems.join("; ")}]`;
     
     if (gameData.characters.size > 2){
@@ -263,7 +263,7 @@ module.exports = (gameData) =>{
     function scenario(){
         // 如果角色数大于2，返回所有角色名在场景名称
         if (gameData.characters.size > 2) {
-            const characterNames = Array.from(gameData.characters.values()).map(char => char.shortName).join(' 、');
+            const characterNames = Array.from(gameData.characters.values()).map(char => char.shortName).join('、');
             let sceneDescription = scene; // 默认使用scene变量
             
             // 沿用原来的switch-case逻辑获取场景描述

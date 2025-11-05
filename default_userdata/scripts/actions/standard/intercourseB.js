@@ -5,7 +5,7 @@
 module.exports = {
     signature: "intercourseB",
     args: [],
-    description: `仅在{{character1Name}}和{{character2Name}}两人发生性关系后执行。行为可以是双方自愿的或强奸。`,
+    description: `仅在除了{{playerName}}之外的{{character1Name}}和{{character2Name}}两人发生性关系后执行。行为可以是双方自愿的或强奸。`,
 
     /**
      * @param {GameData} gameData 
