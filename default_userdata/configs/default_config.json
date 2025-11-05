@@ -74,6 +74,7 @@
 	"cleanMessages": true,
 	"debugMode": false,
 	"checkForUpdatesOnStartup": true,
+	"shuffleCharacterOrder": false,
 	"summariesInsertDepth": 6,
 	"memoriesInsertDepth": 5,
 	"descInsertDepth": 4,

@@ -41,6 +41,7 @@ export class Config{
     cleanMessages!: boolean;
     debugMode!: boolean;
     checkForUpdatesOnStartup!: boolean;
+    shuffleCharacterOrder!: boolean;
 
     summariesInsertDepth!: number;
     memoriesInsertDepth!: number;

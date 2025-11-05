@@ -51,13 +51,13 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     const isSelfTalk = conv.gameData.playerID === conv.gameData.aiID;
 
 
-    chatPrompt.push({
-        role: "system",
-        content: "你的任务是扮演角色 " + character.fullName + "，为该角色写一条回复，只要写该角色的回复，注意你扮演的是" + character.fullName + "，不要写其他任何角色的回复。" + "\n" + "[example messages]"
-    })
-
     let exampleMessagesScriptFileName: string;
     let exampleMessagesPath: string | null;
+
+    chatPrompt.push({
+        role: "system",
+        content: "你的任务是扮演角色 " + character.fullName + "，为该角色写一条回复，只要写该角色的回复，注意你扮演的是" + character.fullName + "，不要写其他任何角色的回复。" + "\n"
+    })
 
     if (isSelfTalk) {
         exampleMessagesScriptFileName = conv.config.selectedSelfTalkExMsgScript;
@@ -81,8 +81,18 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
         try {
             delete require.cache[require.resolve(exampleMessagesPath)];
             let exampleMessages = require(exampleMessagesPath)(conv.gameData, character.id);
-            chatPrompt = chatPrompt.concat(exampleMessages);
-            console.log(`Added example messages from script: ${exampleMessagesScriptFileName}.`);
+            
+            // 只有当example messages不为空时才添加占位符和实际消息
+            if (exampleMessages && exampleMessages.length > 0) {
+                chatPrompt.push({
+                    role: "system",
+                    content: "[example messages]"
+                });
+                chatPrompt = chatPrompt.concat(exampleMessages);
+                console.log(`Added example messages from script: ${exampleMessagesScriptFileName}.`);
+            } else {
+                console.log(`Example messages script returned empty array: ${exampleMessagesScriptFileName}. Skipping example messages.`);
+            }
         } catch (err) {
             console.error(`Error loading example message script '${exampleMessagesScriptFileName}': ${err}`);
             conv.chatWindow.window.webContents.send('error-message', `Error in example message script '${exampleMessagesScriptFileName}'.`);
@@ -137,7 +147,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
         if (isSelfTalk) {
             summaryString = "Here are the date and summary of previous internal monologues for " + conv.gameData.playerName + ":\n";
         } else {
-            summaryString = "Here are the date and summary of previous conversations between " + character.fullName + " and " + conv.gameData.playerName + ":\n";
+            summaryString = "以下是之前对话的日期与摘要：\n";
         }
 
         const summariesToProcess = [...characterSummaries];

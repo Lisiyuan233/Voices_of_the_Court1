@@ -120,8 +120,17 @@ export class Conversation{
         }
 
         // Standard multi-character conversation logic
-        const shuffled_characters = Array.from(this.gameData.characters.values()).sort(() => Math.random() - 0.5);
-        for (const character of shuffled_characters) {
+        let characters = Array.from(this.gameData.characters.values());
+        
+        // 根据配置决定是否打乱角色顺序
+        if (this.config.shuffleCharacterOrder) {
+            characters = characters.sort(() => Math.random() - 0.5);
+            console.log('Character order shuffled for message generation.');
+        } else {
+            console.log('Using default character order for message generation.');
+        }
+        
+        for (const character of characters) {
             if (character.id !== this.gameData.playerID) { // Only generate for non-player characters
                 await this.generateNewAIMessage(character);
             }

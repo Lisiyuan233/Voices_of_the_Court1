@@ -54,6 +54,12 @@
             <hr>
             <div class="row">
               <div class="column">
+                <config-checkbox confID="shuffleCharacterOrder" label="shuffle character order"></config-checkbox> <tooltip-text side="top">Randomize the order in which characters generate messages in multi-character conversations。在多人对话中角色乱序发言，注意：如果开启，每个角色的发言顺序将随机，可能导致llm的输出角色身份混乱</tooltip-text>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="column">
                 <config-number confID="summariesInsertDepth" label="Summaries insert depth" min="0" max="20"></config-number>
               </div>
               <div class="column">
