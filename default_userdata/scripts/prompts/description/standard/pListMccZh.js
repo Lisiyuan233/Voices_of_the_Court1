@@ -261,6 +261,108 @@ module.exports = (gameData) =>{
 
 
     function scenario(){
+        // 如果角色数大于2，返回所有角色名在场景名称
+        if (gameData.characters.size > 2) {
+            const characterNames = Array.from(gameData.characters.values()).map(char => char.shortName).join('、');
+            let sceneDescription = scene; // 默认使用scene变量
+            
+            // 沿用原来的switch-case逻辑获取场景描述
+            switch (scene){
+                //添加更多场景
+                case "family_meeting_east":
+                case "family_meeting":
+                    sceneDescription = `${player.shortName}召开的家族会议`;
+                    break;
+                case "cabinet_meeting_chinese_empire":
+                    sceneDescription = `${player.shortName}召开的中枢会议`;
+                    break;
+                case "cabinet_meeting":
+                case "cabinet_meeting_chinese":
+                    sceneDescription = `${player.shortName}召开的内阁会议`;
+                    break;
+                case "lingyinsi":
+                    sceneDescription = "灵隐寺";
+                    break;
+                case "throneroom_japan":
+                    sceneDescription = "平安宫";
+                    break;
+                case "shaolinsidai":
+                    sceneDescription = "少林寺";
+                    break;
+                case "wudangshandaoguan":
+                    sceneDescription = "武当山道观";
+                    break;
+                case "yungangshiku":
+                    sceneDescription = "云冈石窟";
+                    break;
+                case "leshandafou":
+                    sceneDescription = "乐山大佛";
+                    break;
+                case "taishan":
+                    sceneDescription = "泰山";
+                    break;
+                case "wulingyuan":
+                    sceneDescription = "武陵源";
+                    break;
+                case "kaifenghuangcheng":
+                    sceneDescription = "开封皇城";
+                    break;
+                case "huanghelou":
+                    sceneDescription = "黄鹤楼";
+                    break;
+                case "tengwangge":
+                    sceneDescription = "滕王阁";
+                    break;
+                case "yueyanglou":
+                    sceneDescription = "岳阳楼";
+                    break;
+                case "bedchamber_east1":
+                    sceneDescription = "卧室";
+                    break;
+                case "garden_east1":
+                    sceneDescription = "御花园";
+                    break;
+                case "throneroom_east_fuya1":
+                    sceneDescription = "府衙";
+                    break;
+                case "throneroom_east_fuya":
+                    sceneDescription = "府衙";
+                    break;
+                case "throneroom_east_empire":
+                    sceneDescription = "皇宫大殿";
+                    break;
+                case "throneroom_east_empire1":
+                    sceneDescription = "皇宫大殿";
+                    break;
+                //原作者设置的场景
+                case "throneroom":
+                    sceneDescription = `${locationController}的王座厅`;
+                    break;
+                case "garden":
+                    sceneDescription = "城堡花园";
+                    break;
+                case "bedchamber":
+                    sceneDescription = "私人寝宫";
+                    break;
+                case "feast":
+                    sceneDescription = `${locationController}举办的宴会`;
+                    break;
+                case "armycamp":
+                    sceneDescription = "军营";
+                    break;
+                case "hunt":
+                    sceneDescription = "迷雾森林";
+                    break;
+                case "dungeon":
+                    sceneDescription = "地牢";
+                    break;
+                case "alley":
+                    sceneDescription = "隐蔽小巷";
+                    break;
+            }
+            
+            return `【${characterNames}在${sceneDescription}】`;
+        }
 
         switch (scene){
              //添加更多场景

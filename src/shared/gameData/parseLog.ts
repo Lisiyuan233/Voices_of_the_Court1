@@ -215,6 +215,12 @@ export async function parseLog(debugLogPath: string): Promise<GameData | undefin
     }
 
     console.debug("Finished parsing log. Final GameData object:", gameData!);
+    
+    // 初始化角色名称属性，供parseVariables使用
+    if (gameData) {
+        gameData.setCharacterNames();
+    }
+    
     return gameData!;
 }
 

@@ -2,12 +2,12 @@
 
 /**@typedef {import('../../gamedata_typedefs.js').GameData} GameData */
 module.exports = {
-    signature: "aiPaysGoldToPlayer",
+    signature: "addTreasury",
     args: [
         {
             name: "amount",
             type: "number",
-            desc: "the amount of gold {{playerName}}‘treasury gets, should be always positive"
+            desc: "the amount of gold {{playerName}}'treasury gets, should be always positive"
         }
     ],
     description: `当{{playerName}}的国库获得收入时执行`,

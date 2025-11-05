@@ -187,7 +187,7 @@ export function buildChatPrompt(conv: Conversation, character: Character): Messa
     } else {
         chatPrompt.push({
             role: "system",
-            content: "你的任务是扮演角色 " + character.firstName + "，为该角色写一条回复"+ "\n" + parseVariables(conv.config.mainPrompt, conv.gameData) + character.house + character.firstName + "的回复："
+            content: "你的任务是扮演角色 " + character.fullName + "，为该角色写一条回复，只要写该角色的回复，不要写其他角色的回复。"+ "\n" + parseVariables(conv.config.mainPrompt, conv.gameData) +  character.fullName + "的回复："
         });
         console.log('Added standard main prompt.');
     }
