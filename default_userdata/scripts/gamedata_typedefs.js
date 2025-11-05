@@ -40,8 +40,8 @@ export class GameData {
     aiName: string;
 
     // 用于存储非玩家角色的shortName，供parseVariables使用
-    character1Name: string;
-    character2Name: string;
+    character1Name: string = "";
+    character2Name: string = "";
 
     characters: Map<number,Character>
 

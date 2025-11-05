@@ -39,6 +39,22 @@ export class Conversation{
         this.messages = [];
         this.currentSummary = "";
 
+        // 如果角色数量大于2，为所有非玩家角色创建空白消息
+        if (gameData.characters.size > 2) {
+            console.log(`Creating initial messages for ${gameData.characters.size - 1} non-player characters.`);
+            gameData.characters.forEach((character) => {
+                if (character.id !== gameData.playerID) {
+                    const emptyMessage: Message = {
+                        role: "assistant",
+                        name: character.shortName,
+                        content: "尚未发言"
+                    };
+                    this.messages.push(emptyMessage);
+                    console.log(`Created empty message for character: ${character.shortName}`);
+                }
+            });
+        }
+
         this.summaries = new Map<number, Summary[]>();
         const summariesBasePath = path.join(userDataPath, 'conversation_summaries');
         if (!fs.existsSync(summariesBasePath)){
