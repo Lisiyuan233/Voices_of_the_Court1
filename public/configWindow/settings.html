@@ -66,6 +66,12 @@
             <hr>
             <div class="row">
               <div class="column">
+                <config-checkbox confID="validateCharacterIdentity" label="validate character identity"></config-checkbox> <tooltip-text side="top">When streaming is disabled and there are more than 2 characters, validate that the generated message matches the character's identity. If validation fails, regenerate up to 3 times. 当流式传输关闭且角色数量大于2时，验证生成的消息是否符合角色身份。如果验证失败，最多重新生成3次</tooltip-text>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="column">
                 <config-number confID="summariesInsertDepth" label="Summaries insert depth" min="0" max="20"></config-number>
               </div>
               <div class="column">

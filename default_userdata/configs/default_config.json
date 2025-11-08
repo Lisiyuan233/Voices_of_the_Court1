@@ -76,6 +76,7 @@
 	"checkForUpdatesOnStartup": true,
 	"shuffleCharacterOrder": false,
 	"dynamicCharacterSelection": false,
+	"validateCharacterIdentity": false,
 	"summariesInsertDepth": 6,
 	"memoriesInsertDepth": 5,
 	"descInsertDepth": 4,

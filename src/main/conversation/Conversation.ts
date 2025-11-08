@@ -114,7 +114,13 @@ export class Conversation{
         if (this.gameData.playerID === this.gameData.aiID) {
             console.log('Self-talk session detected. Generating internal monologue for player character.');
             const playerCharacter = this.gameData.getPlayer();
-            await this.generateNewAIMessage(playerCharacter);
+            
+            if (this.config.validateCharacterIdentity) {
+                await this.generateNewAIMessageWithValidation(playerCharacter);
+            } else {
+                await this.generateNewAIMessage(playerCharacter);
+            }
+            
             this.chatWindow.window.webContents.send('actions-receive', []); // No actions in self-talk
             console.log('Finished generating self-talk message.');
             return; // Exit after self-talk message
@@ -137,7 +143,11 @@ export class Conversation{
             
             for (const character of characters) {
                 if (character.id !== this.gameData.playerID) { // Only generate for non-player characters
-                    await this.generateNewAIMessage(character);
+                    if (this.config.validateCharacterIdentity) {
+                        await this.generateNewAIMessageWithValidation(character);
+                    } else {
+                        await this.generateNewAIMessage(character);
+                    }
                 }
             }
         }
@@ -172,8 +182,13 @@ export class Conversation{
             
             if (selectedCharacter) {
                 console.log(`Selected character: ${selectedCharacter.fullName} for next response.`);
-                // 为选中的角色生成消息
-                await this.generateNewAIMessage(selectedCharacter);
+                
+                // 为选中的角色生成消息，根据配置决定是否进行身份验证
+                if (this.config.validateCharacterIdentity) {
+                    await this.generateNewAIMessageWithValidation(selectedCharacter);
+                } else {
+                    await this.generateNewAIMessage(selectedCharacter);
+                }
                 
                 // 从角色池中移除已发言的角色
                 characterPool = characterPool.filter(char => char.id !== selectedCharacter.id);
@@ -187,7 +202,12 @@ export class Conversation{
         if (characterPool.length > 0) {
             console.log(`${characterPool.length} characters haven't spoken yet. Generating messages in default order.`);
             for (const character of characterPool) {
-                await this.generateNewAIMessage(character);
+                // 根据配置决定是否进行身份验证
+                if (this.config.validateCharacterIdentity) {
+                    await this.generateNewAIMessageWithValidation(character);
+                } else {
+                    await this.generateNewAIMessage(character);
+                }
             }
         }
         
@@ -263,7 +283,7 @@ ${conversationSummary}
         }
     }
     
-    async generateNewAIMessage(character: Character){
+    async generateNewAIMessage(character: Character, sendMessageToChat: boolean = true): Promise<Message | null> {
         console.log(`Generating AI message for character: ${character.fullName}`);
         
         const isSelfTalk = this.gameData.playerID === this.gameData.aiID;
@@ -271,7 +291,7 @@ ${conversationSummary}
 
         let responseMessage: Message;
 
-        if(this.config.stream){
+        if(this.config.stream && sendMessageToChat){
             this.chatWindow.window.webContents.send('stream-start');
             console.log('Stream started for AI message generation.');
         }
@@ -307,11 +327,11 @@ ${conversationSummary}
             responseMessage = {
                 role: "assistant",
                 name: characterNameForResponse,//this.gameData.aiName,
-                content: await this.textGenApiConnection.complete(buildChatPrompt(this, character), this.config.stream, {
+                content: await this.textGenApiConnection.complete(buildChatPrompt(this, character), this.config.stream && sendMessageToChat, {
                     //stop: [this.gameData.playerName+":", this.gameData.aiName+":", "you:", "user:"],
                     max_tokens: this.config.maxTokens,
                 },
-                streamRelay)
+                this.config.stream && sendMessageToChat ? streamRelay : undefined)
             };  
             
         }
@@ -321,11 +341,11 @@ ${conversationSummary}
             responseMessage = {
                 role: "assistant",
                 name: characterNameForResponse,
-                content: await this.textGenApiConnection.complete(convertChatToText(buildChatPrompt(this, character), this.config, character.fullName), this.config.stream, {
+                content: await this.textGenApiConnection.complete(convertChatToText(buildChatPrompt(this, character), this.config, character.fullName), this.config.stream && sendMessageToChat, {
                     stop: [this.config.inputSequence, this.config.outputSequence],
                     max_tokens: this.config.maxTokens,
                 },
-                streamRelay)
+                this.config.stream && sendMessageToChat ? streamRelay : undefined)
             };
     
         }
@@ -409,14 +429,14 @@ ${conversationSummary}
                 const errorMsg = `Error: The AI attempted to generate a response for the player character (${player.shortName}). This action has been blocked.`;
                 console.error(errorMsg + `\nOriginal AI response: "${responseMessage.content}"`);
                 this.chatWindow.window.webContents.send('error-message', errorMsg);
-                return; // Stop processing this message
+                return null; // Stop processing this message
             }
         }
 
         // If the response is empty after cleaning, don't send it.
         if (!responseMessage.content.trim()) {
             console.log(`AI response for ${character.fullName} was empty after cleaning. Skipping.`);
-            return;
+            return null;
         }
 
         if (isSelfTalk) {
@@ -424,22 +444,178 @@ ${conversationSummary}
             let cleanedContent = responseMessage.content.replace(/^\*+|\*+$/g, '').trim();
             responseMessage.content = `*${cleanedContent}*`;
         }
-        this.pushMessage(responseMessage);
+        
+        // 只有当sendMessageToChat为true时才将消息添加到消息数组并发送到聊天窗口
+        if (sendMessageToChat) {
+            this.pushMessage(responseMessage);
 
-        if (this.config.stream) {
-            // The stream is over, send the final, cleaned, and formatted message
-            // to replace the streaming content in the UI.
-            streamMessage.content = responseMessage.content;
-            this.chatWindow.window.webContents.send('stream-message', streamMessage);
-            console.log('Sent final stream message to chat window.');
+            if (this.config.stream) {
+                // The stream is over, send the final, cleaned, and formatted message
+                // to replace the streaming content in the UI.
+                streamMessage.content = responseMessage.content;
+                this.chatWindow.window.webContents.send('stream-message', streamMessage);
+                console.log('Sent final stream message to chat window.');
+            } else {
+                this.chatWindow.window.webContents.send('message-receive', responseMessage, this.config.actionsEnableAll);
+                console.log('Sent AI message to chat window (non-streaming).');
+            }
+            
+            // Only check for actions if it's a conversation between two different characters
+            if (this.gameData.playerID !== this.gameData.aiID) {
+                if (character.id === this.gameData.aiID){
+                    let collectedActions: ActionResponse[];
+                    let narrative: string = "";
+                    
+                    if(this.config.actionsEnableAll){
+                        try{
+                            console.log('Actions are enabled. Checking for actions...');
+                            const actionResult = await checkActions(this);
+                            collectedActions = actionResult.actions;
+                            narrative = actionResult.narrative;
+                        }
+                        catch(e){
+                            console.error(`Error during action check: ${e}`);
+                            collectedActions = [];
+                            narrative = "";
+                        }
+                    }
+                    else{
+                        console.log('Actions are disabled in config.');
+                        collectedActions = [];
+                        narrative = "";
+                    }
+        
+                    this.chatWindow.window.webContents.send('actions-receive', collectedActions, narrative);    
+                    console.log(`Sent ${collectedActions.length} actions to chat window.`);
+                    if (narrative) {
+                        console.log(`Sent narrative: ${narrative}`);
+                    }
+                }
+            }
         } else {
-            this.chatWindow.window.webContents.send('message-receive', responseMessage, this.config.actionsEnableAll);
-            console.log('Sent AI message to chat window (non-streaming).');
+            console.log(`Message generated but not sent to chat window due to sendMessageToChat=false`);
         }
         
-        // Only check for actions if it's a conversation between two different characters
-        if (this.gameData.playerID !== this.gameData.aiID) {
-            if (character.id === this.gameData.aiID){
+        // 如果sendMessageToChat为false，返回生成的消息
+        if (!sendMessageToChat) {
+            return responseMessage;
+        }
+        
+        return null;
+    }
+
+    /**
+     * 验证生成的消息是否符合角色身份
+     * @param character - 应该发言的角色
+     * @param messageContent - 生成的消息内容
+     * @returns 如果消息符合角色身份返回true，否则返回false
+     */
+    async validateCharacterIdentity(character: Character, messageContent: string): Promise<boolean> {
+        console.log(`Validating if message content matches character identity for: ${character.fullName}`);
+        
+        // 构建验证提示
+        const prompt: Message[] = [
+            {
+                role: "system",
+                content: `你是一个角色身份验证助手。你需要判断以下消息是否符合指定角色的身份。
+
+角色信息：
+- 姓名：${character.fullName}
+- 名称：${character.shortName}
+- 身份/头衔：${character.primaryTitle}
+- 性别：${character.sheHe}
+- 年龄：${character.age}
+- 文化：${character.culture}
+- 信仰：${character.faith}
+- 是否为统治者：${character.isRuler ? '是' : '否'}
+- 是否为独立统治者：${character.isIndependentRuler ? '是' : '否'}
+
+当前角色发言：
+
+消息内容：
+"${messageContent}"
+
+请判断这条消息是否符合上述角色的身份。如果符合，请回答"符合"；如果不符合，请回答"不符合"。只需要回答"符合"或"不符合"，不需要其他解释。`
+            }
+        ];
+        
+        try {
+            // 调用LLM API进行验证
+            const response = await this.textGenApiConnection.complete(prompt, false, {
+                max_tokens: 10,
+                temperature: 0.1 // 使用较低的温度以确保一致性
+            });
+            
+            const responseText = response.trim();
+            console.log(`[DEBUG] Parsed response: ${responseText}`);
+            
+            // 更严格的验证逻辑：明确检查是否为"符合"
+            const isValid = responseText === "符合";
+            console.log(`Character identity validation result for ${character.fullName}: ${isValid ? 'Valid' : 'Invalid'}`);
+            return isValid;
+        } catch (error) {
+            console.error(`Error during character identity validation: ${error}. Defaulting to valid.`);
+            // 如果验证过程出错，默认认为消息有效
+            return true;
+        }
+    }
+
+    /**
+     * 生成带有身份验证的AI消息
+     * @param character - 应该发言的角色
+     */
+    async generateNewAIMessageWithValidation(character: Character): Promise<void> {
+        console.log(`Generating AI message with identity validation for character: ${character.fullName}`);
+        
+        // 检查是否满足身份验证的条件：流式传输关闭且角色数量大于2
+        const shouldValidate = !this.config.stream && this.gameData.characters.size > 2;
+        
+        if (!shouldValidate) {
+            console.log(`Identity validation conditions not met (stream: ${this.config.stream}, character count: ${this.gameData.characters.size}). Generating message without validation.`);
+            await this.generateNewAIMessage(character, true);
+            return;
+        }
+        
+        let attempts = 0;
+        const maxAttempts = 3;
+        let validMessageGenerated = false;
+        let validMessage: Message | null = null;
+        
+        while (attempts < maxAttempts && !validMessageGenerated) {
+            attempts++;
+            console.log(`Attempt ${attempts} to generate valid message for ${character.fullName}`);
+            
+            try {
+                // 生成消息，但不发送到聊天窗口
+                const generatedMessage = await this.generateNewAIMessage(character, false);
+                
+                if (generatedMessage) {
+                    // 验证消息是否符合角色身份
+                    const isValid = await this.validateCharacterIdentity(character, generatedMessage.content);
+                    
+                    if (isValid) {
+                        console.log(`Generated valid message for ${character.fullName} on attempt ${attempts}`);
+                        validMessage = generatedMessage;
+                        validMessageGenerated = true;
+                    } else {
+                        console.log(`Generated invalid message for ${character.fullName} on attempt ${attempts}. Retrying.`);
+                    }
+                } else {
+                    console.warn(`No valid message found for ${character.fullName} after generation.`);
+                }
+            } catch (error) {
+                console.error(`Error generating message for ${character.fullName} on attempt ${attempts}: ${error}`);
+            }
+        }
+        
+        if (validMessageGenerated && validMessage) {
+            // 验证通过，将消息添加到消息数组并发送到聊天窗口
+            this.pushMessage(validMessage);
+            this.chatWindow.window.webContents.send('message-receive', validMessage, this.config.actionsEnableAll);
+            console.log(`Sent validated message for ${character.fullName} to chat window.`);
+            
+            // 检查并执行动作
+            if (this.gameData.playerID !== this.gameData.aiID && character.id === this.gameData.aiID) {
                 let collectedActions: ActionResponse[];
                 let narrative: string = "";
                 
@@ -468,6 +644,10 @@ ${conversationSummary}
                     console.log(`Sent narrative: ${narrative}`);
                 }
             }
+        } else {
+            console.warn(`Failed to generate valid message for ${character.fullName} after ${maxAttempts} attempts. Skipping this character.`);
+            // 可以选择发送一个通知给用户
+            this.chatWindow.window.webContents.send('error-message', `无法为角色 ${character.fullName} 生成符合身份的消息，已跳过该角色的发言。`);
         }
     }
 
