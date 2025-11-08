@@ -516,7 +516,7 @@ ${conversationSummary}
         // 获取最近的对话历史，用于提供上下文
         const recentMessages = this.messages.slice(-5); // 获取最近5条消息作为上下文
         const conversationHistory = recentMessages.map(msg => 
-            `${msg.role === 'user' ? '用户' : msg.name}: ${msg.content}`
+            `${msg.name}: ${msg.content}`
         ).join('\n');
         
         // 获取年龄描述，根据年龄段添加后缀
@@ -534,7 +534,7 @@ ${conversationSummary}
         // 构建验证提示
         const prompt: Message[] = [
             {
-                role: "system",
+                role: "user",
                 content: `你是一个角色身份验证助手。你需要判断以下消息是否符合指定角色的身份。
 
 角色信息：
@@ -702,7 +702,7 @@ ${conversationHistory}
         // 获取最近的对话历史，用于提供上下文
         const recentMessages = this.messages.slice(-5); // 获取最近5条消息作为上下文
         const conversationHistory = recentMessages.map(msg => 
-            `${msg.role === 'user' ? '用户' : msg.name}: ${msg.content}`
+            `${msg.name}: ${msg.content}`
         ).join('\n');
         
         // 构建特定提示词
