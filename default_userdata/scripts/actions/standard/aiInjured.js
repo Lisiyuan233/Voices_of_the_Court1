@@ -97,7 +97,6 @@ module.exports = {
 
             case "cut_balls":
                 console.log("Executing cut_balls effect"); // Debug log
-                if (ai.sheHe == 'he' && (!ai.hasTrait('阉人') || !ai.hasTrait('无须阉人'))) {
                     runGameEffect(`
                         global_var:talk_second_scope = {
 	                        add_trait = eunuch_1
@@ -114,7 +113,6 @@ module.exports = {
                         name: "Eunuch",
                         desc: `${ai.shortName} is an eunuch`
                     });
-                }
                 break;
 
             case "disfigured":
