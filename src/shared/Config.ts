@@ -44,6 +44,7 @@ export class Config{
     shuffleCharacterOrder!: boolean;
     dynamicCharacterSelection!: boolean;
     validateCharacterIdentity!: boolean;
+    showSuggestionsButton!: boolean;
 
     summariesInsertDepth!: number;
     memoriesInsertDepth!: number;

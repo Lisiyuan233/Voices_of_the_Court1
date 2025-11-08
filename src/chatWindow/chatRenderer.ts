@@ -23,13 +23,19 @@ let loadingDots: any;
 
 let playerName: string;
 let aiName: string;
+let showSuggestionsButton: boolean = true; // 默认显示建议按钮
 
 
 async function initChat(){
     
     chatMessages.innerHTML = '';
     chatInput.innerHTML = '';
-    chatInput.disabled = false;    
+    chatInput.disabled = false;
+    
+    // 根据配置显示或隐藏建议按钮
+    if (suggestionsButton) {
+        suggestionsButton.style.display = showSuggestionsButton ? 'block' : 'none';
+    }
 }
 
 async function displayMessage(message: Message): Promise<HTMLDivElement>{
@@ -201,6 +207,16 @@ leaveButton.addEventListener("click", ()=>{
         displaySuggestions(suggestions)
     })
 
+// 监听配置变更
+    ipcRenderer.on('config-change', (event, key, value) => {
+        if (key === 'showSuggestionsButton') {
+            showSuggestionsButton = value;
+            if (suggestionsButton) {
+                suggestionsButton.style.display = showSuggestionsButton ? 'block' : 'none';
+            }
+        }
+    })
+
 //IPC Events
 
 ipcRenderer.on('chat-show', () =>{
@@ -211,9 +227,19 @@ ipcRenderer.on('chat-hide', () =>{
     hideChat();
 })
 
-ipcRenderer.on('chat-start', (e, gameData: GameData) =>{   
+ipcRenderer.on('chat-start', async (e, gameData: GameData) =>{   
     playerName = gameData.playerName.replace(/\s+/g, '');
     aiName = gameData.aiName;
+    
+    // 获取配置并设置建议按钮的显示状态
+    try {
+        const config = await ipcRenderer.invoke('get-config');
+        showSuggestionsButton = config.showSuggestionsButton !== undefined ? config.showSuggestionsButton : true;
+    } catch (error) {
+        console.error('Error getting config:', error);
+        showSuggestionsButton = true; // 默认显示
+    }
+    
     initChat();
     document.body.style.display = '';
 })
