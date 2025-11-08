@@ -513,6 +513,24 @@ ${conversationSummary}
     async validateCharacterIdentity(character: Character, messageContent: string): Promise<boolean> {
         console.log(`Validating if message content matches character identity for: ${character.fullName}`);
         
+        // 获取最近的对话历史，用于提供上下文
+        const recentMessages = this.messages.slice(-5); // 获取最近5条消息作为上下文
+        const conversationHistory = recentMessages.map(msg => 
+            `${msg.role === 'user' ? '用户' : msg.name}: ${msg.content}`
+        ).join('\n');
+        
+        // 获取年龄描述，根据年龄段添加后缀
+        let ageDescription = `${character.age}岁`;
+        if (character.age >= 0 && character.age <= 3) {
+            ageDescription += "（婴儿）";
+        } else if (character.age >= 4 && character.age <= 5) {
+            ageDescription += "（幼儿）";
+        } else if (character.age >= 6 && character.age <= 12) {
+            ageDescription += "（少儿）";
+        } else if (character.age >= 13 && character.age <= 16) {
+            ageDescription += "（少年）";
+        }
+
         // 构建验证提示
         const prompt: Message[] = [
             {
@@ -524,18 +542,21 @@ ${conversationSummary}
 - 名称：${character.shortName}
 - 身份/头衔：${character.primaryTitle}
 - 性别：${character.sheHe}
-- 年龄：${character.age}
+- 年龄：${ageDescription}
 - 文化：${character.culture}
 - 信仰：${character.faith}
 - 是否为统治者：${character.isRuler ? '是' : '否'}
 - 是否为独立统治者：${character.isIndependentRuler ? '是' : '否'}
+
+最近的对话历史：
+${conversationHistory}
 
 当前角色发言：
 
 消息内容：
 "${messageContent}"
 
-请判断这条消息是否符合上述角色的身份。如果符合，请回答"符合"；如果不符合，请回答"不符合"。只需要回答"符合"或"不符合"，不需要其他解释。`
+请结合对话历史上下文，判断这条消息是否符合上述角色的身份。如果符合，请回答"符合"；如果不符合，请回答"不符合"。只需要回答"符合"或"不符合"，不需要其他解释。`
             }
         ];
         
@@ -586,8 +607,15 @@ ${conversationSummary}
             console.log(`Attempt ${attempts} to generate valid message for ${character.fullName}`);
             
             try {
-                // 生成消息，但不发送到聊天窗口
-                const generatedMessage = await this.generateNewAIMessage(character, false);
+                let generatedMessage: Message | null = null;
+                
+                // 第一次尝试使用常规生成方式
+                if (attempts === 1) {
+                    generatedMessage = await this.generateNewAIMessage(character, false);
+                } else {
+                    // 后续尝试使用特定提示词生成消息
+                    generatedMessage = await this.generateMessageWithValidationPrompt(character);
+                }
                 
                 if (generatedMessage) {
                     // 验证消息是否符合角色身份
@@ -647,7 +675,85 @@ ${conversationSummary}
         } else {
             console.warn(`Failed to generate valid message for ${character.fullName} after ${maxAttempts} attempts. Skipping this character.`);
             // 可以选择发送一个通知给用户
-            this.chatWindow.window.webContents.send('error-message', `无法为角色 ${character.fullName} 生成符合身份的消息，已跳过该角色的发言。`);
+            this.chatWindow.window.webContents.send('error-message', ` ${character.fullName} 没有发言。`);
+        }
+    }
+
+    /**
+     * 使用特定提示词生成消息（用于验证失败后的重试）
+     * @param character - 应该发言的角色
+     * @returns 生成的消息对象
+     */
+    async generateMessageWithValidationPrompt(character: Character): Promise<Message | null> {
+        console.log(`Generating message with validation prompt for character: ${character.fullName}`);
+        
+        // 获取年龄描述，根据年龄段添加后缀
+        let ageDescription = `${character.age}岁`;
+        if (character.age >= 0 && character.age <= 3) {
+            ageDescription += "（婴儿）";
+        } else if (character.age >= 4 && character.age <= 5) {
+            ageDescription += "（幼儿）";
+        } else if (character.age >= 6 && character.age <= 12) {
+            ageDescription += "（少儿）";
+        } else if (character.age >= 13 && character.age <= 16) {
+            ageDescription += "（少年）";
+        }
+        
+        // 获取最近的对话历史，用于提供上下文
+        const recentMessages = this.messages.slice(-5); // 获取最近5条消息作为上下文
+        const conversationHistory = recentMessages.map(msg => 
+            `${msg.role === 'user' ? '用户' : msg.name}: ${msg.content}`
+        ).join('\n');
+        
+        // 构建特定提示词
+        const prompt: Message[] = [
+            {
+                role: "system",
+                content: `请扮演角色${character.fullName}写下一条发言，角色信息：
+- 姓名：${character.fullName}
+- 名称：${character.shortName}
+- 身份/头衔：${character.primaryTitle}
+- 性别：${character.sheHe}
+- 年龄：${ageDescription}
+- 文化：${character.culture}
+- 信仰：${character.faith}
+- 是否为统治者：${character.isRuler ? '是' : '否'}
+- 是否为独立统治者：${character.isIndependentRuler ? '是' : '否'}
+
+最近的对话历史：
+${conversationHistory}
+
+${character.fullName}的发言：`
+            }
+        ];
+        
+        try {
+            // 调用LLM API生成消息
+            const response = await this.textGenApiConnection.complete(prompt, false, {
+                max_tokens: this.config.maxTokens,
+                temperature: this.config.textGenerationApiConnectionConfig.parameters.temperature
+            });
+            
+            if (!response || response.trim() === '') {
+                console.warn(`Empty response from LLM for character ${character.fullName}`);
+                return null;
+            }
+            
+            // 创建消息对象
+            const isSelfTalk = this.gameData.playerID === this.gameData.aiID;
+            const characterNameForResponse = isSelfTalk ? character.shortName : character.fullName;
+            
+            const message: Message = {
+                role: "assistant",
+                name: characterNameForResponse,
+                content: response.trim()
+            };
+            
+            console.log(`Generated message with validation prompt for ${character.fullName}: ${message.content.substring(0, 50)}...`);
+            return message;
+        } catch (error) {
+            console.error(`Error generating message with validation prompt for ${character.fullName}: ${error}`);
+            return null;
         }
     }
 
