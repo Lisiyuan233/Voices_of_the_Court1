@@ -157,6 +157,21 @@ export async function checkUserData(){
         console.log(`Copied gamedata_typedefs.js from ${typedefsSourcePath} to ${typedefsDestPath}`);
     });
 
+    //bookmarks
+    console.log('Updating bookmarks...');
+    const standardBookmarksPath = path.join(userDataScriptsPath, 'bookmarks', 'standard');
+    if(fs.existsSync(standardBookmarksPath)){
+        fs.rmdirSync(standardBookmarksPath, {recursive: true});
+        console.log(`Removed old standard bookmarks directory: ${standardBookmarksPath}`);
+    }
+    fs.cp(path.join(defaultScriptsPath, 'bookmarks', 'standard'), standardBookmarksPath, {recursive: true}, (err) => {
+        if(err) {
+            console.error(`Error copying standard bookmarks: ${err}`);
+            throw err;
+        }
+        console.log(`Copied standard bookmarks to: ${standardBookmarksPath}`);
+    });
+
     console.log('User data check completed successfully.');
     return true;
 }
