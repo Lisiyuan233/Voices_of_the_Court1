@@ -15,6 +15,10 @@ hideChat();
 let chatMessages: HTMLDivElement = document.querySelector('.messages')!;
 let chatInput: HTMLInputElement= document.querySelector('.chat-input')!;
 let leaveButton: HTMLButtonElement = document.querySelector('.leave-button')!;
+let suggestionsButton: HTMLButtonElement = document.querySelector('.suggestions-button')!;
+let suggestionsContainer: HTMLDivElement = document.querySelector('.suggestions-container')!;
+let suggestionsList: HTMLDivElement = document.querySelector('.suggestions-list')!;
+let suggestionsClose: HTMLButtonElement = document.querySelector('.suggestions-close')!;
 let loadingDots: any;
 
 let playerName: string;
@@ -139,6 +143,39 @@ function removeLoadingDots(){
     chatInput.disabled = false;
 }
 
+// 显示推荐输入语句
+function displaySuggestions(suggestions: string[]) {
+    // 清空之前的推荐
+    suggestionsList.innerHTML = ''
+    
+    // 如果没有推荐，显示提示信息
+    if (suggestions.length === 0) {
+        const noSuggestionsItem = document.createElement('div')
+        noSuggestionsItem.className = 'suggestion-item'
+        noSuggestionsItem.textContent = '暂无推荐输入语句'
+        suggestionsList.appendChild(noSuggestionsItem)
+    } else {
+        // 添加每个推荐语句
+        suggestions.forEach(suggestion => {
+            const suggestionItem = document.createElement('div')
+            suggestionItem.className = 'suggestion-item'
+            suggestionItem.textContent = suggestion
+            
+            // 点击推荐语句时，将其填入输入框
+            suggestionItem.addEventListener('click', () => {
+                chatInput.value = suggestion
+                suggestionsContainer.style.display = 'none'
+                chatInput.focus()
+            })
+            
+            suggestionsList.appendChild(suggestionItem)
+        })
+    }
+    
+    // 显示推荐容器
+    suggestionsContainer.style.display = 'block'
+}
+
 function hideChat(){
     document.body.style.display = 'none';
 }
@@ -149,6 +186,20 @@ leaveButton.addEventListener("click", ()=>{
     chatInput.innerHTML = '';
     ipcRenderer.send('chat-stop');
 });
+
+    // 推荐输入语句功能事件处理
+    suggestionsButton.addEventListener('click', () => {
+        ipcRenderer.send('get-suggestions')
+    })
+
+    suggestionsClose.addEventListener('click', () => {
+        suggestionsContainer.style.display = 'none'
+    })
+
+    // 监听推荐输入语句响应
+    ipcRenderer.on('suggestions-response', (event, suggestions) => {
+        displaySuggestions(suggestions)
+    })
 
 //IPC Events
 

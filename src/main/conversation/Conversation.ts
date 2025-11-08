@@ -5,6 +5,7 @@ import { Config } from '../../shared/Config.js';
 import { ApiConnection} from '../../shared/apiConnection.js';
 import { checkActions } from './checkActions.js';
 import { convertChatToText, buildChatPrompt, buildResummarizeChatPrompt, convertChatToTextNoNames} from './promptBuilder.js';
+import { generateSuggestions } from './suggestionBuilder.js';
 import { cleanMessageContent } from './messageCleaner.js';
 import { summarize } from './summarize.js';
 import fs from 'fs';
@@ -456,8 +457,13 @@ export class Conversation{
             }
         });
 
+    }
 
-        }; 
+    // 生成推荐输入语句
+    public async generateSuggestions(): Promise<string[]> {
+        return generateSuggestions(this);
+    }
+
 
     updateConfig(config: Config){
         console.log("Config updated! Reloading conversation configuration.");

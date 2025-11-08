@@ -406,6 +406,21 @@ ipcMain.on('message-send', async (e, message: Message) =>{
     
 });
 
+    // 处理获取推荐输入语句的请求
+    ipcMain.on('get-suggestions', async (event) => {
+        if (conversation) {
+            try {
+                const suggestions = await conversation.generateSuggestions();
+                event.reply('suggestions-response', suggestions);
+            } catch (error) {
+                console.error('Error generating suggestions:', error);
+                event.reply('suggestions-response', []);
+            }
+        } else {
+            event.reply('suggestions-response', []);
+        }
+    })
+
 
 
 ipcMain.handle('get-config', () => {

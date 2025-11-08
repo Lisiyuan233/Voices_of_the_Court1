@@ -13,7 +13,18 @@
       <div class="messages">
       </div>
     </div>
-    <textarea class="chat-input" placeholder="Write a message..." rows="4" cols="20"></textarea>
+    <div class="input-container">
+      <textarea class="chat-input" placeholder="Write a message..." rows="4" cols="20"></textarea>
+      <div class="suggestions-container" style="display: none;">
+        <div class="suggestions-header">
+          <span>推荐输入语句</span>
+          <button class="suggestions-close">×</button>
+        </div>
+        <div class="suggestions-list">
+        </div>
+      </div>
+      <button class="suggestions-button">显示建议</button>
+    </div>
     <button class="leave-button">End conversation</button>
   </div>
   

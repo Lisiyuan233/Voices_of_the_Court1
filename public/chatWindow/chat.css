@@ -33,7 +33,7 @@ html{
     overflow: hidden;
     position: relative;
     width: 100%;
-    height: 77%;
+    height: 69%; /* 减少消息容器高度，为输入容器腾出空间 */
     background: rgba(0, 0, 0, 0.5);
 }
 
@@ -59,7 +59,7 @@ html{
 
 .chat-input{
     width: 100%;
-    height: 12%;
+    height: 60%; /* 调整为容器高度的60%，确保有足够空间 */
     resize: none;
     margin-bottom: 1%;
     margin-top: 1%;
@@ -72,6 +72,88 @@ html{
     box-sizing: border-box;
     transition: border-color 0.3s;
     cursor: url('../assets/cursor.png'), auto; 	
+}
+
+/* 输入容器样式 */
+.input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 20%; /* 增加输入容器的高度 */
+}
+
+/* 推荐输入语句容器样式 */
+.suggestions-container {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #fff;
+    font-family: 'Gitan', sans-serif;
+    font-size: 14px;
+}
+
+.suggestions-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.suggestion-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #fff;
+    font-family: 'Gitan', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.suggestions-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Gitan', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-end;
+}
+
+.suggestions-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .chat-input::-webkit-scrollbar{
