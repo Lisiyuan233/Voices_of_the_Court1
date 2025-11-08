@@ -75,6 +75,7 @@
 	"debugMode": false,
 	"checkForUpdatesOnStartup": true,
 	"shuffleCharacterOrder": false,
+	"dynamicCharacterSelection": false,
 	"summariesInsertDepth": 6,
 	"memoriesInsertDepth": 5,
 	"descInsertDepth": 4,

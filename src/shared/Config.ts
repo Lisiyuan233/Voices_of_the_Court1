@@ -42,6 +42,7 @@ export class Config{
     debugMode!: boolean;
     checkForUpdatesOnStartup!: boolean;
     shuffleCharacterOrder!: boolean;
+    dynamicCharacterSelection!: boolean;
 
     summariesInsertDepth!: number;
     memoriesInsertDepth!: number;

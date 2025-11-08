@@ -60,6 +60,12 @@
             <hr>
             <div class="row">
               <div class="column">
+                <config-checkbox confID="dynamicCharacterSelection" label="dynamic character selection"></config-checkbox> <tooltip-text side="top">Use LLM to analyze conversation and select the next character to speak. The LLM will choose from a pool of characters who haven't spoken yet in the current round. 使用LLM分析对话内容并选择下一个发言角色，LLM将从当前轮次中未发言的角色池中选择</tooltip-text>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="column">
                 <config-number confID="summariesInsertDepth" label="Summaries insert depth" min="0" max="20"></config-number>
               </div>
               <div class="column">
