@@ -97,19 +97,17 @@ module.exports = {
 
             case "cut_balls":
                 console.log("Executing cut_balls effect"); // Debug log
-                if (ai.sheHe == 'he' && (!ai.hasTrait('Eunuch') || !ai.hasTrait('Beardless Eunuch'))) {
+                if (ai.sheHe == 'he' && (!ai.hasTrait('阉人') || !ai.hasTrait('无须阉人'))) {
                     runGameEffect(`
                         global_var:talk_second_scope = {
-                            if = {
-                                limit = {
-                                  age < 12
-                                }
-                                ep3_child_castration_effect = yes
-                            }
-                            else = {
-                                ep3_youth_castration_effect = yes
-                            }
+	                        add_trait = eunuch_1
+	                        torture_memory_effect = {
+		                        VICTIM = scope:recipient
+		                        TORTURER = scope:actor  
+		                        TYPE = castrated
+	                            }                            
                         }
+                        
                     `);
                     gameData.getAi().addTrait({
                         category: "health",
