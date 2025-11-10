@@ -31,6 +31,7 @@ export class Conversation{
     actions: Action[];
     summaries: Map<number, Summary[]>;
     currentSummary: string;
+    narratives: Map<number, string[]>; // 存储每个消息ID对应的旁白列表
     
     constructor(gameData: GameData, config: Config, chatWindow: ChatWindow){
         console.log('Conversation initialized.');
@@ -39,6 +40,7 @@ export class Conversation{
         this.gameData = gameData;
         this.messages = [];
         this.currentSummary = "";
+        this.narratives = new Map<number, string[]>(); // 初始化旁白存储
 
         // 如果角色数量大于2，为所有非玩家角色创建空白消息
         if (gameData.characters.size > 2) {
@@ -105,6 +107,22 @@ export class Conversation{
     pushMessage(message: Message): void{           
         this.messages.push(message);
         console.log(`Message pushed to conversation. Role: ${message.role}, Name: ${message.name}, Content length: ${message.content.length}`);
+    }
+
+    // 添加旁白到指定消息
+    addNarrativeToMessage(messageIndex: number, narrative: string): void {
+        if (messageIndex >= 0 && messageIndex < this.messages.length) {
+            // 在narratives映射中存储旁白
+            const messageId = messageIndex;
+            if (!this.narratives.has(messageId)) {
+                this.narratives.set(messageId, []);
+            }
+            this.narratives.get(messageId)!.push(narrative);
+            
+            console.log(`Narrative added to message at index ${messageIndex}: ${narrative}`);
+        } else {
+            console.error(`Invalid message index: ${messageIndex}. Cannot add narrative.`);
+        }
     }
 
     async generateAIsMessages() {
@@ -448,6 +466,7 @@ ${conversationSummary}
         // 只有当sendMessageToChat为true时才将消息添加到消息数组并发送到聊天窗口
         if (sendMessageToChat) {
             this.pushMessage(responseMessage);
+            const messageIndex = this.messages.length - 1; // 获取刚添加的消息索引
 
             if (this.config.stream) {
                 // The stream is over, send the final, cleaned, and formatted message
@@ -472,6 +491,12 @@ ${conversationSummary}
                             const actionResult = await checkActions(this);
                             collectedActions = actionResult.actions;
                             narrative = actionResult.narrative;
+                            
+                            // 如果有旁白，将其与当前消息关联
+                            if (narrative) {
+                                this.addNarrativeToMessage(messageIndex, narrative);
+                                console.log(`Associated narrative with message at index ${messageIndex}`);
+                            }
                         }
                         catch(e){
                             console.error(`Error during action check: ${e}`);
@@ -639,6 +664,7 @@ ${conversationHistory}
         if (validMessageGenerated && validMessage) {
             // 验证通过，将消息添加到消息数组并发送到聊天窗口
             this.pushMessage(validMessage);
+            const messageIndex = this.messages.length - 1; // 获取刚添加消息的索引
             this.chatWindow.window.webContents.send('message-receive', validMessage, this.config.actionsEnableAll);
             console.log(`Sent validated message for ${character.fullName} to chat window.`);
             
@@ -653,6 +679,12 @@ ${conversationHistory}
                         const actionResult = await checkActions(this);
                         collectedActions = actionResult.actions;
                         narrative = actionResult.narrative;
+                        
+                        // 将旁白与消息关联
+                        if (narrative) {
+                            this.addNarrativeToMessage(messageIndex, narrative);
+                            console.log(`Associated narrative with message at index ${messageIndex}`);
+                        }
                     }
                     catch(e){
                         console.error(`Error during action check: ${e}`);
@@ -808,17 +840,34 @@ ${character.fullName}的发言：`
           console.log(`Created conversation history directory: ${historyDir}`);
         }
 
-        // Process conversation messages, keeping only name and content
-        const processedMessages = this.messages.map(msg => ({
-          name: msg.name,
-          content: msg.content
-        }));
+        // Process conversation messages, keeping name, content and narrative
+        const processedMessages = this.messages.map((msg, index) => {
+          const messageData: any = {
+            name: msg.name,
+            content: msg.content
+          };
+          
+          // 添加旁白信息（如果有）
+          const narratives = this.narratives.get(index);
+          if (narratives && narratives.length > 0) {
+            messageData.narratives = narratives;
+          }
+          
+          return messageData;
+        });
 
         // Build the text content to be saved
         let textContent = `Date: ${this.gameData.date}\n\n`;
 
         processedMessages.forEach((msg, index) => {
-          textContent += `${msg.name}: ${msg.content}\n\n`;
+          textContent += `${msg.name}: ${msg.content}\n`;
+          
+          // 添加旁白信息
+          if (msg.narratives && msg.narratives.length > 0) {
+            textContent += `[旁白]: ${msg.narratives.join('\n[旁白]: ')}\n`;
+          }
+          
+          textContent += '\n';
         });
 
         // Store the message text for generating summaries in txt format

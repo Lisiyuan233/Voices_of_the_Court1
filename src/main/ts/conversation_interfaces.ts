@@ -4,6 +4,7 @@ export interface Message {
     role: 'system' | 'user' | 'assistant';
     name?: string,
     content: string ;
+    narrative?: string; // 添加旁白属性
 }
 
 

@@ -182,7 +182,7 @@ export function buildSuggestionPrompt(conv: Conversation): Message[] {
     }
     
     // 构建提示词，请求生成推荐输入语句（使用中文）
-    const prompt = `基于以下对话上下文和角色信息，为玩家角色生成3-5个简短且合适的回应建议。建议应该：
+    const prompt = `基于以下对话上下文和角色信息，为玩家角色${playerCharacter.shortName}生成3-5个简短且合适的回应建议。建议应该：
 1. 符合角色特点和当前情境
 2. 语气多样（例如：询问、同意、反对、中立）
 3. 简洁自然
