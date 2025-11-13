@@ -57,6 +57,9 @@ export class ClipboardListener extends EventEmitter{
                 case "BOOKMARK":
                     this.emit('VOTC:BOOKMARK');
                     break;
+                case "SUMMARY_MANAGER":
+                    this.emit('VOTC:SUMMARY_MANAGER');
+                break;
             }
             
             

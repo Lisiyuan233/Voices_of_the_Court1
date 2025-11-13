@@ -1,6 +1,7 @@
 import { app, ipcMain, dialog, autoUpdater, Tray, Menu} from "electron";
 import {ConfigWindow} from './windows/ConfigWindow.js';
 import {ChatWindow} from './windows/ChatWindow.js';
+import {SummaryManagerWindow} from './windows/SummaryManagerWindow.js';
 import { Config } from '../shared/Config.js';
 import { ClipboardListener } from "./ClipboardListener.js";
 import { Conversation } from "./conversation/Conversation.js";
@@ -8,6 +9,7 @@ import { GameData } from "../shared/gameData/GameData.js";
 import { parseLog } from "../shared/gameData/parseLog.js";
 import { parseLogForBookmarks } from "./parseLogforbookmarks.js";
 import { processBookmarkToSummary } from "./bookmarktosummary.js";
+import { parseSummaryIdsFromLog, readSummaryFile, saveSummaryFile } from "./summaryManager.js";
 import { Message} from "./ts/conversation_interfaces.js";
 import path from 'path';
 import fs from 'fs';
@@ -91,6 +93,7 @@ if(app.isPackaged){
 
 let configWindow: ConfigWindow;
 let chatWindow: ChatWindow;
+let summaryManagerWindow: SummaryManagerWindow;
 
 let clipboardListener = new ClipboardListener();
 let config: Config;
@@ -261,7 +264,6 @@ app.on('ready',  async () => {
     console.log('ConfigWindow created.');
     chatWindow = new ChatWindow();
     console.log('ChatWindow created.');
-
     
     chatWindow.window.on('closed', () =>{
         console.log('Chat window closed. Quitting application.');
@@ -389,6 +391,21 @@ clipboardListener.on('VOTC:BOOKMARK', async () => {
     }
 })
 
+clipboardListener.on('VOTC:SUMMARY_MANAGER', async () => {
+    console.log('ClipboardListener: VOTC:SUMMARY_MANAGER event detected.');
+    try {
+        // Create or show the summary manager window
+        if (!summaryManagerWindow || summaryManagerWindow.isDestroyed()) {
+            summaryManagerWindow = new SummaryManagerWindow();
+        }
+        
+        summaryManagerWindow.show();
+        console.log('Summary manager window opened.');
+    } catch (error) {
+        console.error('Error opening summary manager window:', error);
+    }
+})
+
 //IPC 
 
 ipcMain.on('message-send', async (e, message: Message) =>{
@@ -492,4 +509,40 @@ ipcMain.on("select-user-folder", (event) => {
 ipcMain.on("open-folder", (event, path) => {
     console.log(`IPC: Received open-folder event for path: ${path}`);
     dialog.showSaveDialog(configWindow.window, { defaultPath: path, properties: []});
+});
+
+// Summary Manager IPC handlers
+ipcMain.handle('get-summary-ids', async () => {
+    console.log('IPC: Received get-summary-ids event.');
+    try {
+        const logFilePath = path.join(config.userFolderPath, 'logs', 'debug.log');
+        const ids = await parseSummaryIdsFromLog(logFilePath);
+        return ids;
+    } catch (error) {
+        console.error('Error getting summary IDs:', error);
+        return { playerId: null };
+    }
+});
+
+ipcMain.handle('read-summary-file', async (event, playerId) => {
+    console.log(`IPC: Received read-summary-file event for player: ${playerId}`);
+    try {
+        const summaryData = await readSummaryFile(playerId);
+        return summaryData;
+    } catch (error) {
+        console.error('Error reading summary file:', error);
+        return [];
+    }
+});
+
+ipcMain.handle('save-summary-file', async (event, playerId, summaryData) => {
+    console.log(`IPC: Received save-summary-file event for player: ${playerId}`);
+    try {
+        await saveSummaryFile(playerId, summaryData);
+        return { success: true };
+    } catch (error) {
+        console.error('Error saving summary file:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { success: false, error: errorMessage };
+    }
 });
