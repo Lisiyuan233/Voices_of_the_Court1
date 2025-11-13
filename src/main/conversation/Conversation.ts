@@ -14,6 +14,7 @@ import path from 'path';
 import {Message, MessageChunk, ErrorMessage, Summary, Action, ActionResponse} from '../ts/conversation_interfaces.js';
 import { RunFileManager } from '../RunFileManager.js';
 import { ChatWindow } from '../windows/ChatWindow.js';
+import { SummaryFileWatcher } from './SummaryFileWatcher.js';
 
 const userDataPath = path.join(app.getPath('userData'), 'votc_data');
 
@@ -32,6 +33,7 @@ export class Conversation{
     summaries: Map<number, Summary[]>;
     currentSummary: string;
     narratives: Map<number, string[]>; // 存储每个消息ID对应的旁白列表
+    summaryFileWatcher: SummaryFileWatcher; // 文件监控器
     
     constructor(gameData: GameData, config: Config, chatWindow: ChatWindow){
         console.log('Conversation initialized.');
@@ -59,6 +61,8 @@ export class Conversation{
         }
 
         this.summaries = new Map<number, Summary[]>();
+        this.summaryFileWatcher = new SummaryFileWatcher(); // 初始化文件监控器
+        
         const summariesBasePath = path.join(userDataPath, 'conversation_summaries');
         if (!fs.existsSync(summariesBasePath)){
             fs.mkdirSync(summariesBasePath);
@@ -89,6 +93,12 @@ export class Conversation{
                     console.log(`No prior summaries found for AI ID ${character.id}. Initialized empty summaries file at ${summaryFilePath}.`);
                 }
                 this.summaries.set(character.id, characterSummaries);
+                
+                // 设置文件监控，当文件变化时自动重新加载
+                this.summaryFileWatcher.watchFile(summaryFilePath, (updatedSummaries) => {
+                    this.summaries.set(character.id, updatedSummaries);
+                    console.log(`Automatically reloaded summaries for character ID ${character.id} due to file change`);
+                });
             }
         });
 
@@ -899,6 +909,9 @@ ${character.fullName}的发言：`
                 const summaryDir = path.join(userDataPath, 'conversation_summaries', this.gameData.playerID.toString());
                 const summaryFile = path.join(summaryDir, `${character.id.toString()}.json`);
 
+                // 暂停文件监控，避免保存时触发重新加载
+                this.summaryFileWatcher.pauseWatcher(summaryFile);
+
                 // Get existing summaries from the map, or start with an empty array
                 const existingSummaries = this.summaries.get(character.id) || [];
                 
@@ -912,6 +925,9 @@ ${character.fullName}的发言：`
                 } else {
                     console.log(`Skipping saving empty summary for AI ID ${character.id}.`);
                 }
+
+                // 恢复文件监控
+                this.summaryFileWatcher.resumeWatcher(summaryFile);
             }
         });
 
@@ -920,6 +936,18 @@ ${character.fullName}的发言：`
     // 生成推荐输入语句
     public async generateSuggestions(): Promise<string[]> {
         return generateSuggestions(this);
+    }
+
+    /**
+     * 清理资源，停止文件监控
+     */
+    public cleanup(): void {
+        if (this.summaryFileWatcher) {
+            this.summaryFileWatcher.unwatchAll();
+            // 确保清理所有暂停的监控文件
+            this.summaryFileWatcher.clearPausedWatchers();
+            console.log('Cleaned up summary file watchers and paused watchers');
+        }
     }
 
 
