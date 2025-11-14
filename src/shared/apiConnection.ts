@@ -379,9 +379,16 @@ export class ApiConnection{
                         }
                     } else {
                         // @ts-ignore
-                        response = completion.choices[0].message.content;
+                        const choice = completion.choices?.[0];
+                        if (choice) {
+                            // Prefer chat message content, fall back to text field if provided
+                            response = choice.message?.content ?? choice.text ?? "";
+                        }
                     }
     
+                    if (!response) {
+                        console.error("Empty response parsed from chat completion:", JSON.stringify(completion, null, 2));
+                    }
                     console.debug("Parsed response:", response);
                     return response;
                 } else {
@@ -424,25 +431,28 @@ export class ApiConnection{
                     if (stream) {
                         // @ts-ignore
                         for await (const chunk of completion) {
-                            let msgChunk: MessageChunk = {
-                                // @ts-ignore
-                                content: chunk.choices[0].text
-                            };
-                            streamRelay!(msgChunk);
-
-                            response += msgChunk.content;
+                            // @ts-ignore
+                            const textChunk = chunk.choices[0].text ?? chunk.choices[0].delta?.content ?? "";
+                            if (textChunk) {
+                                let msgChunk: MessageChunk = {
+                                    content: textChunk
+                                };
+                                streamRelay!(msgChunk);
+                                response += msgChunk.content;
+                            }
                         }
                     } else {
                         // Notice: OpenRouter returns response in completion.choices[0].text trough chat endpoint with legacy format
-                        if (this.type === "openrouter") {
-                            // @ts-ignore
-                            response = completion.choices[0].text;
-                        } else {
-                            // @ts-ignore
-                            response = completion.choices[0].text;
+                        // @ts-ignore
+                        const choice = completion.choices?.[0];
+                        if (choice) {
+                            response = choice.text ?? choice.message?.content ?? "";
                         }
                     }
 
+                    if (!response) {
+                        console.error("Empty response parsed from completion endpoint:", JSON.stringify(completion, null, 2));
+                    }
                     console.debug("Parsed response:", response);
                     if (response === "" || response === undefined || response === null || response === " ") {
                         throw new Error("{code: 599, error: {message: 'No response'}}");
