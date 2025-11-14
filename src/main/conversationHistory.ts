@@ -45,7 +45,7 @@ export async function parseConversationHistoryIdsFromLog(logFilePath: string): P
 }
 
 // 读取历史对话文件列表
-export async function getConversationHistoryFiles(playerId: string): Promise<string[]> {
+export async function getConversationHistoryFiles(playerId: string): Promise<Array<{fileName: string, modifiedTime: number}>> {
     try {
         // 构建对话历史目录路径 - 使用userdata的conversation_history目录
         const userDataPath = app.getPath('userData');
@@ -60,10 +60,20 @@ export async function getConversationHistoryFiles(playerId: string): Promise<str
         // 读取目录中的所有txt文件
         const files = fs.readdirSync(conversationHistoryDir).filter(file => file.endsWith('.txt'));
         
-        // 按文件名排序（通常是日期）
-        files.sort();
+        // 获取每个文件的修改时间
+        const filesWithStats = files.map(fileName => {
+            const filePath = path.join(conversationHistoryDir, fileName);
+            const stats = fs.statSync(filePath);
+            return {
+                fileName,
+                modifiedTime: stats.mtime.getTime()
+            };
+        });
         
-        return files;
+        // 按修改时间降序排序（最新的在前）
+        filesWithStats.sort((a, b) => b.modifiedTime - a.modifiedTime);
+        
+        return filesWithStats;
     } catch (error) {
         console.error('读取对话历史文件列表错误:', error);
         throw error;

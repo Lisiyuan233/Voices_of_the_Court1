@@ -599,3 +599,12 @@ ipcMain.handle('read-conversation-history-file', async (event, playerId, filenam
         return '';
     }
 });
+
+// 处理关闭对话历史窗口的请求
+ipcMain.on('close-conversation-history', () => {
+    console.log('IPC: Received close-conversation-history event.');
+    if (conversationHistoryWindow && !conversationHistoryWindow.isDestroyed()) {
+        conversationHistoryWindow.close();
+        console.log('Conversation history window closed.');
+    }
+});

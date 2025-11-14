@@ -75,34 +75,27 @@ function renderConversationList() {
         return;
     }
     
-    // 按文件名中的日期降序排序（最新的在前）
-    const sortedFiles = [...conversationFiles].sort((a, b) => {
-        // 尝试从文件名中提取日期
-        const dateA = extractDateFromFileName(a);
-        const dateB = extractDateFromFileName(b);
-        
-        // 如果是有效的日期格式，则按日期降序排序
-        if (dateA !== a && dateB !== b) {
-            return new Date(dateB) - new Date(dateA);
-        }
-        
-        // 如果不是日期格式，则按文件名字母降序排序
-        return b.localeCompare(a);
-    });
-    
-    sortedFiles.forEach((fileName, index) => {
+    // 文件已经按修改时间降序排序（最新的在前）
+    conversationFiles.forEach((fileInfo, index) => {
         const conversationItem = document.createElement('div');
         conversationItem.className = 'conversation-item';
         
-        // 尝试从文件名中提取日期信息
-        const fileDate = extractDateFromFileName(fileName);
+        // 格式化修改时间为可读的日期字符串
+        const modifiedDate = new Date(fileInfo.modifiedTime);
+        const formattedDate = modifiedDate.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
         
         conversationItem.innerHTML = `
-            <div class="file-name">${fileName}</div>
-            <div class="file-date">${fileDate}</div>
+            <div class="file-name">${fileInfo.fileName}</div>
+            <div class="file-date">${formattedDate}</div>
         `;
         
-        conversationItem.addEventListener('click', () => selectConversationFile(fileName));
+        conversationItem.addEventListener('click', () => selectConversationFile(fileInfo.fileName));
         conversationList.appendChild(conversationItem);
     });
 }
