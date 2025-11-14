@@ -2,6 +2,7 @@ import { app, ipcMain, dialog, autoUpdater, Tray, Menu} from "electron";
 import {ConfigWindow} from './windows/ConfigWindow.js';
 import {ChatWindow} from './windows/ChatWindow.js';
 import {SummaryManagerWindow} from './windows/SummaryManagerWindow.js';
+import {ConversationHistoryWindow} from './windows/ConversationHistoryWindow.js';
 import { Config } from '../shared/Config.js';
 import { ClipboardListener } from "./ClipboardListener.js";
 import { Conversation } from "./conversation/Conversation.js";
@@ -10,6 +11,7 @@ import { parseLog } from "../shared/gameData/parseLog.js";
 import { parseLogForBookmarks } from "./parseLogforbookmarks.js";
 import { processBookmarkToSummary } from "./bookmarktosummary.js";
 import { parseSummaryIdsFromLog, readSummaryFile, saveSummaryFile } from "./summaryManager.js";
+import { parseConversationHistoryIdsFromLog, getConversationHistoryFiles, readConversationHistoryFile } from "./conversationHistory.js";
 import { Message} from "./ts/conversation_interfaces.js";
 import path from 'path';
 import fs from 'fs';
@@ -94,6 +96,7 @@ if(app.isPackaged){
 let configWindow: ConfigWindow;
 let chatWindow: ChatWindow;
 let summaryManagerWindow: SummaryManagerWindow;
+let conversationHistoryWindow: ConversationHistoryWindow;
 
 let clipboardListener = new ClipboardListener();
 let config: Config;
@@ -406,6 +409,21 @@ clipboardListener.on('VOTC:SUMMARY_MANAGER', async () => {
     }
 })
 
+clipboardListener.on('VOTC:CONVERSATION_HISTORY', async () => {
+    console.log('ClipboardListener: VOTC:CONVERSATION_HISTORY event detected.');
+    try {
+        // Create or show the conversation history window
+        if (!conversationHistoryWindow || conversationHistoryWindow.isDestroyed()) {
+            conversationHistoryWindow = new ConversationHistoryWindow();
+        }
+        
+        conversationHistoryWindow.show();
+        console.log('Conversation history window opened.');
+    } catch (error) {
+        console.error('Error opening conversation history window:', error);
+    }
+})
+
 //IPC 
 
 ipcMain.on('message-send', async (e, message: Message) =>{
@@ -544,5 +562,40 @@ ipcMain.handle('save-summary-file', async (event, playerId, summaryData) => {
         console.error('Error saving summary file:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
         return { success: false, error: errorMessage };
+    }
+});
+
+// Conversation History IPC handlers
+ipcMain.handle('get-conversation-history-ids', async () => {
+    console.log('IPC: Received get-conversation-history-ids event.');
+    try {
+        const logFilePath = path.join(config.userFolderPath, 'logs', 'debug.log');
+        const ids = await parseConversationHistoryIdsFromLog(logFilePath);
+        return ids;
+    } catch (error) {
+        console.error('Error getting conversation history IDs:', error);
+        return { playerId: null };
+    }
+});
+
+ipcMain.handle('get-conversation-history-files', async (event, playerId) => {
+    console.log(`IPC: Received get-conversation-history-files event for player: ${playerId}`);
+    try {
+        const files = await getConversationHistoryFiles(playerId);
+        return files;
+    } catch (error) {
+        console.error('Error getting conversation history files:', error);
+        return [];
+    }
+});
+
+ipcMain.handle('read-conversation-history-file', async (event, playerId, filename) => {
+    console.log(`IPC: Received read-conversation-history-file event for player: ${playerId}, file: ${filename}`);
+    try {
+        const content = await readConversationHistoryFile(playerId, filename);
+        return content;
+    } catch (error) {
+        console.error('Error reading conversation history file:', error);
+        return '';
     }
 });

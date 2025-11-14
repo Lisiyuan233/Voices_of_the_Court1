@@ -60,6 +60,9 @@ export class ClipboardListener extends EventEmitter{
                 case "SUMMARY_MANAGER":
                     this.emit('VOTC:SUMMARY_MANAGER');
                 break;
+                case "CONVERSATION_HISTORY":
+                    this.emit('VOTC:CONVERSATION_HISTORY');
+                break;               
             }
             
             
