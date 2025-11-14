@@ -608,3 +608,12 @@ ipcMain.on('close-conversation-history', () => {
         console.log('Conversation history window closed.');
     }
 });
+
+// 处理关闭总结管理器窗口的请求
+ipcMain.on('close-summary-manager', () => {
+    console.log('IPC: Received close-summary-manager event.');
+    if (summaryManagerWindow && !summaryManagerWindow.isDestroyed()) {
+        summaryManagerWindow.close();
+        console.log('Summary manager window closed.');
+    }
+});
