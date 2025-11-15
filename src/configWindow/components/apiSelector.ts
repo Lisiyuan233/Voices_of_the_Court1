@@ -466,108 +466,62 @@ class ApiSelector extends HTMLElement{
         }
     }
 
-    // 添加一个方法来保存所有API类型的配置
-    async saveAllApiConfigs() {
-        // 获取当前配置
-        let config = await ipcRenderer.invoke('get-config');
-        let currentConfig = config[this.confID].connection;
+    saveAllApiConfigs() {
+        console.log('Saving all API configurations...');
         
-        // 创建一个包含所有API类型配置的对象
+        // 保存所有API类型的配置
+        this.saveOpenaiConfig();
+        this.saveOobaConfig();
+        this.saveOpenrouterConfig();
+        this.saveGeminiConfig();
+        this.saveGlmConfig();
+        this.saveCustomConfig();
+        
+        // 通知主进程所有API配置已更新
         const allConfigs = {
             openai: {
-                type: "openai",
-                baseUrl: "https://api.openai.com/v1",
                 key: this.openaiKeyInput.value,
-                model: this.openaiModelSelect.value,
-                forceInstruct: this.openrouterInstructModeCheckbox.checked,
-                overwriteContext: this.overwriteContextCheckbox.checked,
-                customContext: this.customContextNumber.value
+                baseUrl: "https://api.openai.com/v1",
+                model: this.openaiModelSelect.value
             },
             ooba: {
-                type: "ooba",
+                key: this.oobaUrlInput.value ? 'ooba-placeholder-key' : '',
                 baseUrl: this.oobaUrlInput.value,
-                key: "11111111111111111111",
-                model: "string",
-                forceInstruct: this.openrouterInstructModeCheckbox.checked,
-                overwriteContext: this.overwriteContextCheckbox.checked,
-                customContext: this.customContextNumber.value
+                model: "string"
             },
             openrouter: {
-                type: "openrouter",
-                baseUrl: "https://openrouter.ai/api/v1",
                 key: this.openrouterKeyInput.value,
+                baseUrl: "https://openrouter.ai/api/v1",
                 model: this.openrouterModelInput.value,
-                forceInstruct: this.openrouterInstructModeCheckbox.checked,
-                overwriteContext: this.overwriteContextCheckbox.checked,
-                customContext: this.customContextNumber.value
+                forceInstruct: this.openrouterInstructModeCheckbox.checked
             },
             gemini: {
-                type: "gemini",
-                baseUrl: "https://generativelanguage.googleapis.com/v1beta",
                 key: this.geminiKeyInput.value,
-                model: this.geminiModelInput.value,
-                forceInstruct: false,
-                overwriteContext: this.overwriteContextCheckbox.checked,
-                customContext: this.customContextNumber.value
+                baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+                model: this.geminiModelInput.value
             },
             glm: {
-                type: "glm",
-                baseUrl: "https://open.bigmodel.cn/api/paas/v4",
                 key: this.glmKeyInput.value,
-                model: this.glmModelSelect.value,
-                forceInstruct: false,
-                overwriteContext: this.overwriteContextCheckbox.checked,
-                customContext: this.customContextNumber.value
+                baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+                model: this.glmModelSelect.value
             },
             custom: {
-                type: "custom",
-                baseUrl: this.customUrlInput.value,
                 key: this.customKeyInput.value,
-                model: this.customModelInput.value,
-                forceInstruct: false,
-                overwriteContext: this.overwriteContextCheckbox.checked,
-                customContext: this.customContextNumber.value
+                baseUrl: this.customUrlInput.value,
+                model: this.customModelInput.value
             }
         };
         
-        // 保留已存在的apiKeys配置（如果有）
-        const existingApiKeys = currentConfig.apiKeys || {};
+        // 发送所有API配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'all', allConfigs);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'all', allConfigs);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'all', allConfigs);
         
-        // 合并现有配置和新配置
-        for (const [apiType, apiConfig] of Object.entries(allConfigs)) {
-            // 如果当前API类型的输入字段有值，则更新配置
-            if (apiType === 'openai' && this.openaiKeyInput.value) {
-                existingApiKeys[apiType] = apiConfig;
-            } else if (apiType === 'ooba' && this.oobaUrlInput.value) {
-                existingApiKeys[apiType] = apiConfig;
-            } else if (apiType === 'openrouter' && this.openrouterKeyInput.value) {
-                existingApiKeys[apiType] = apiConfig;
-            } else if (apiType === 'gemini' && this.geminiKeyInput.value) {
-                existingApiKeys[apiType] = apiConfig;
-            } else if (apiType === 'glm' && this.glmKeyInput.value) {
-                existingApiKeys[apiType] = apiConfig;
-            } else if (apiType === 'custom' && this.customKeyInput.value) {
-                existingApiKeys[apiType] = apiConfig;
-            }
-            // 如果没有新值但已有配置，则保留旧配置
-            else if (existingApiKeys[apiType]) {
-                // 保留现有配置
-            }
-        }
-        
-        // 为了确保所有API Key都被保存，我们需要扩展配置结构
-        // 我们将在配置中添加一个apiKeys字段来存储所有API类型的配置
-        const extendedConfig = {
-            ...currentConfig,
-            apiKeys: existingApiKeys
-        };
-        
-        // 保存扩展后的配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", extendedConfig);
+        console.log('All API configurations saved and sent to main process');
     }
 
     saveOpenaiConfig(){
-        const newConf = {
+        const config = {
             type: "openai",
             baseUrl: "https://api.openai.com/v1",
             key: this.openaiKeyInput.value,
@@ -575,39 +529,43 @@ class ApiSelector extends HTMLElement{
             forceInstruct: this.openrouterInstructModeCheckbox.checked,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
-        }
-
-        // 保存当前配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        };
         
-        // 同时保存所有API配置以确保Key不会丢失
-        this.saveAllApiConfigs();
+        // 保存当前配置
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
+        
+        // 发送配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'openai', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'openai', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'openai', config);
     }
     
 
     //OOBA DIV
     saveOobaConfig(){
-        const newConf = {
+        const config = {
             type: "ooba",
             baseUrl: this.oobaUrlInput.value,
-            key: "11111111111111111111",
+            key: this.oobaUrlInput.value ? "ooba-placeholder-key" : "",
             model: "string",
             forceInstruct: this.openrouterInstructModeCheckbox.checked,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
-        }
+        };
 
         // 保存当前配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
         
-        // 同时保存所有API配置以确保Key不会丢失
-        this.saveAllApiConfigs();
+        // 发送配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'ooba', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'ooba', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'ooba', config);
     }
     
 
     //OPENROUTER DIV
     saveOpenrouterConfig(){
-        const newConf = {
+        const config = {
             type: "openrouter",
             baseUrl: "https://openrouter.ai/api/v1",
             key: this.openrouterKeyInput.value,
@@ -615,16 +573,18 @@ class ApiSelector extends HTMLElement{
             forceInstruct: this.openrouterInstructModeCheckbox.checked,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
-        }
+        };
         // 保存当前配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
         
-        // 同时保存所有API配置以确保Key不会丢失
-        this.saveAllApiConfigs();
+        // 发送配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'openrouter', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'openrouter', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'openrouter', config);
     }   
 
     saveCustomConfig(){
-        const newConf = {
+        const config = {
             type: "custom",
             baseUrl: this.customUrlInput.value,
             key: this.customKeyInput.value,
@@ -632,16 +592,18 @@ class ApiSelector extends HTMLElement{
             forceInstruct: false,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
-        }
+        };
         // 保存当前配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
         
-        // 同时保存所有API配置以确保Key不会丢失
-        this.saveAllApiConfigs();
+        // 发送配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'custom', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'custom', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'custom', config);
     }  
 
     saveGeminiConfig(){
-        const newConf = {
+        const config = {
             type: "gemini",
             baseUrl: "https://generativelanguage.googleapis.com/v1beta",
             key: this.geminiKeyInput.value,
@@ -649,16 +611,18 @@ class ApiSelector extends HTMLElement{
             forceInstruct: false,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
-        }
+        };
         // 保存当前配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
         
-        // 同时保存所有API配置以确保Key不会丢失
-        this.saveAllApiConfigs();
+        // 发送配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'gemini', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'gemini', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'gemini', config);
     }
 
     saveGlmConfig(){
-        const newConf = {
+        const config = {
             type: "glm",
             baseUrl: "https://open.bigmodel.cn/api/paas/v4",
             key: this.glmKeyInput.value,
@@ -666,12 +630,14 @@ class ApiSelector extends HTMLElement{
             forceInstruct: false,
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
-        }
+        };
         // 保存当前配置
-        ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
         
-        // 同时保存所有API配置以确保Key不会丢失
-        this.saveAllApiConfigs();
+        // 发送配置到主进程
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'glm', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'glm', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'glm', config);
     }
     
 }

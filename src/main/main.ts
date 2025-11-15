@@ -600,6 +600,45 @@ ipcMain.handle('read-conversation-history-file', async (event, playerId, filenam
     }
 });
 
+// 处理API配置更改事件
+ipcMain.on('api-config-change', (e, configType: string, apiType: string, configData: any) => {
+    console.log(`IPC: Received api-config-change event. Config Type: ${configType}, API Type: ${apiType}`);
+    
+    // 确保配置对象存在
+    if (!(config as any)[configType]) {
+        console.error(`Configuration type ${configType} not found`);
+        return;
+    }
+    
+    // 确保connection对象存在
+    if (!(config as any)[configType].connection) {
+        (config as any)[configType].connection = {};
+    }
+    
+    // 确保apiKeys对象存在
+    if (!(config as any)[configType].connection.apiKeys) {
+        (config as any)[configType].connection.apiKeys = {};
+    }
+    
+    // 保存API配置到apiKeys对象中
+    (config as any)[configType].connection.apiKeys[apiType] = configData;
+    
+    // 如果是当前选中的API类型，同时更新connection对象中的主要字段
+    if ((config as any)[configType].connection.type === apiType) {
+        (config as any)[configType].connection.key = configData.key || '';
+        (config as any)[configType].connection.baseUrl = configData.baseUrl || '';
+        (config as any)[configType].connection.model = configData.model || '';
+    }
+    
+    // 导出配置
+    config.export();
+    
+    // 如果聊天窗口已显示，更新对话配置
+    if(chatWindow.isShown){
+        conversation.updateConfig(config);
+    }
+});
+
 // 处理关闭对话历史窗口的请求
 ipcMain.on('close-conversation-history', () => {
     console.log('IPC: Received close-conversation-history event.');

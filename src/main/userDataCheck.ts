@@ -30,8 +30,16 @@ function mergeConfigsStrict(defaultConfig: any, userConfig: any): any {
             }
         }
     }
-    // Note: Keys present in userConfig but not in defaultConfig will be ignored,
-    // ensuring the output structure matches defaultConfig.
+    
+    // 保留用户配置中不在默认配置中的特殊字段（如apiKeys）
+    // 这些字段对于API配置的持久化至关重要
+    const specialFields = ['apiKeys'];
+    for (const field of specialFields) {
+        if (userConfig.hasOwnProperty(field)) {
+            merged[field] = userConfig[field];
+        }
+    }
+    
     return merged;
 }
 

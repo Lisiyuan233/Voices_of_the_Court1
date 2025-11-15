@@ -18,6 +18,7 @@ export interface Connection{
     forceInstruct: boolean ;//only used by openrouter
     overwriteContext: boolean;
     customContext: number;
+    apiKeys?: { [apiType: string]: any }; // 存储所有API类型的配置
 }
 
 export interface Parameters{
@@ -37,6 +38,7 @@ export class ApiConnection{
     parameters: Parameters;
     context: number;
     overwriteWarning: boolean;
+    config: Connection; // 保存原始配置对象，包括apiKeys
     
 
     constructor(connection: Connection, parameters: Parameters){
@@ -44,6 +46,15 @@ export class ApiConnection{
         const redactedConnection = { ...connection, key: '[REDACTED]' };
         console.debug("Received connection:", redactedConnection);
         console.debug("Received parameters:", parameters);
+        
+        // 保存原始配置对象，包括apiKeys
+        this.config = connection;
+        
+        // 如果apiKeys存在，确保所有API类型的配置都被加载
+        if (connection.apiKeys) {
+            console.log('Loading API keys from config:', Object.keys(connection.apiKeys));
+        }
+        
         this.type = connection.type;
         if(this.type !== 'gemini' && this.type !== 'glm'){
             this.client = new OpenAI({
