@@ -18,6 +18,7 @@ function defineTemplate(label: string){
             <option value="openai">OpenAI</option>
             <option value="gemini">Google Gemini</option>
             <option value="glm">GLM</option>
+            <option value="deepseek">DeepSeek</option>
             <option value="custom">Custom (OpenAI-compatible)</option>
         </select> 
     </div>
@@ -111,6 +112,15 @@ function defineTemplate(label: string){
             </div>
         </div>
 
+        <div id="deepseek-menu">
+            <h2>DeepSeek</h2>
+            <div class="input-group">
+            <label for="api-key">API Key</label>
+            <br>
+            <input type="password" id="deepseek-key">
+            </div>
+        </div>
+
         <div id="custom-menu">
             <h2>Custom (Openai-compatible) endpoint</h2>
 
@@ -156,6 +166,7 @@ class ApiSelector extends HTMLElement{
     customDiv: HTMLDivElement 
     geminiDiv: HTMLDivElement
     glmDiv: HTMLDivElement
+    deepseekDiv: HTMLDivElement
 
     openaiKeyInput: HTMLInputElement 
     openaiModelSelect: HTMLSelectElement 
@@ -165,6 +176,7 @@ class ApiSelector extends HTMLElement{
 
     glmKeyInput: HTMLInputElement 
     glmModelSelect: HTMLSelectElement 
+    deepseekKeyInput: HTMLInputElement
 
     oobaUrlInput: HTMLSelectElement 
     oobaUrlConnectButton: HTMLInputElement 
@@ -204,6 +216,7 @@ class ApiSelector extends HTMLElement{
         this.customDiv = this.shadow.querySelector("#custom-menu")!;
         this.geminiDiv = this.shadow.querySelector("#gemini-menu")!;
         this.glmDiv = this.shadow.querySelector("#glm-menu")!;
+        this.deepseekDiv = this.shadow.querySelector("#deepseek-menu")!;
 
         this.openaiKeyInput = this.shadow.querySelector("#openai-key")!;
         this.openaiModelSelect = this.shadow.querySelector("#openai-model-select")!;
@@ -213,6 +226,7 @@ class ApiSelector extends HTMLElement{
 
         this.glmKeyInput = this.shadow.querySelector("#glm-key")!;
         this.glmModelSelect = this.shadow.querySelector("#glm-model-select")!;
+        this.deepseekKeyInput = this.shadow.querySelector("#deepseek-key")!;
 
         this.oobaUrlInput = this.shadow.querySelector("#ooba-url")!;
         this.oobaUrlConnectButton = this.shadow.querySelector("#ooba-url-connect")!;
@@ -305,6 +319,13 @@ class ApiSelector extends HTMLElement{
             this.glmModelSelect.value = apiConfig.model;
         }
         
+        // 加载DeepSeek配置
+        if (apiKeys.deepseek) {
+            this.deepseekKeyInput.value = apiKeys.deepseek.key || "";
+        } else if(apiConfig.type == "deepseek"){
+            this.deepseekKeyInput.value = apiConfig.key;
+        }
+        
         this.openrouterInstructModeCheckbox.checked = apiConfig.forceInstruct;
 
         this.overwriteContextCheckbox.checked = apiConfig.overwriteContext;
@@ -332,6 +353,9 @@ class ApiSelector extends HTMLElement{
                 break;
                 case 'glm': 
                     this.saveGlmConfig();
+                break;
+                case 'deepseek':
+                    this.saveDeepseekConfig();
                 break;
                 case 'custom': 
                     this.saveCustomConfig();
@@ -362,6 +386,10 @@ class ApiSelector extends HTMLElement{
 
         this.glmDiv.addEventListener("change", (e:any) =>{
             this.saveGlmConfig();
+        })
+
+        this.deepseekDiv.addEventListener("change", (e:any) =>{
+            this.saveDeepseekConfig();
         })
 
         this.testConnectionButton.addEventListener('click', async (e:any) =>{
@@ -443,6 +471,7 @@ class ApiSelector extends HTMLElement{
         this.customDiv.style.display = "none";
         this.geminiDiv.style.display = "none";
         this.glmDiv.style.display = "none";
+        this.deepseekDiv.style.display = "none";
 
         switch (this.typeSelector.value) {
             case 'openai':  
@@ -463,6 +492,9 @@ class ApiSelector extends HTMLElement{
             case 'glm':
                 this.glmDiv.style.display = "block";
                 break;
+            case 'deepseek':
+                this.deepseekDiv.style.display = "block";
+                break;
         }
     }
 
@@ -475,6 +507,7 @@ class ApiSelector extends HTMLElement{
         this.saveOpenrouterConfig();
         this.saveGeminiConfig();
         this.saveGlmConfig();
+        this.saveDeepseekConfig();
         this.saveCustomConfig();
         
         // 通知主进程所有API配置已更新
@@ -504,6 +537,11 @@ class ApiSelector extends HTMLElement{
                 key: this.glmKeyInput.value,
                 baseUrl: "https://open.bigmodel.cn/api/paas/v4",
                 model: this.glmModelSelect.value
+            },
+            deepseek: {
+                key: this.deepseekKeyInput.value,
+                baseUrl: "https://api.deepseek.com",
+                model: "deepseek-chat"
             },
             custom: {
                 key: this.customKeyInput.value,
@@ -638,6 +676,22 @@ class ApiSelector extends HTMLElement{
         ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'glm', config);
         ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'glm', config);
         ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'glm', config);
+    }
+    
+    saveDeepseekConfig(){
+        const config = {
+            type: "deepseek",
+            baseUrl: "https://api.deepseek.com",
+            key: this.deepseekKeyInput.value,
+            model: "deepseek-chat",
+            forceInstruct: false,
+            overwriteContext: this.overwriteContextCheckbox.checked,
+            customContext: this.customContextNumber.value
+        };
+        ipcRenderer.send('config-change-nested', this.confID, "connection", config);
+        ipcRenderer.send('api-config-change', 'textGenerationApiConnectionConfig', 'deepseek', config);
+        ipcRenderer.send('api-config-change', 'summarizationApiConnectionConfig', 'deepseek', config);
+        ipcRenderer.send('api-config-change', 'actionsApiConnectionConfig', 'deepseek', config);
     }
     
 }

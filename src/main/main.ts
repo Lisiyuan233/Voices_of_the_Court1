@@ -483,6 +483,14 @@ ipcMain.on('config-change', (e, confID: string, newValue: any) =>{
 ipcMain.on('config-change-nested', (e, outerConfID: string, innerConfID: string, newValue: any) =>{
     console.log(`IPC: Received config-change-nested event. Outer ID: ${outerConfID}, Inner ID: ${innerConfID}, New Value: ${newValue}`);
     //@ts-ignore
+    const previous = config[outerConfID]?.[innerConfID];
+    // Preserve existing API keys when updating the connection block
+    if (innerConfID === 'connection' && previous && typeof previous === 'object') {
+        if (!newValue.apiKeys && previous.apiKeys) {
+            newValue.apiKeys = previous.apiKeys;
+        }
+    }
+    //@ts-ignore
     config[outerConfID][innerConfID] = newValue;
     config.export();
     if(chatWindow.isShown){
