@@ -248,36 +248,59 @@ class ApiSelector extends HTMLElement{
         this.typeSelector.value = apiConfig.type;
         this.displaySelectedApiBox();
 
+        // 从apiKeys字段中加载所有API类型的配置（如果存在）
+        const apiKeys = apiConfig.apiKeys || {};
         
-        if(apiConfig.type == "openai"){
-            
+        // 加载OpenAI配置
+        if (apiKeys.openai) {
+            this.openaiKeyInput.value = apiKeys.openai.key || "";
+            this.openaiModelSelect.value = apiKeys.openai.model || "";
+        } else if(apiConfig.type == "openai"){
             this.openaiKeyInput.value = apiConfig.key;
-            
-            this.openaiModelSelect.value =  apiConfig.model;
+            this.openaiModelSelect.value = apiConfig.model;
         }
         
-        else if(apiConfig.type == "ooba"){
-            
+        // 加载OOBA配置
+        if (apiKeys.ooba) {
+            this.oobaUrlInput.value = apiKeys.ooba.baseUrl || "";
+        } else if(apiConfig.type == "ooba"){
             this.oobaUrlInput.value = apiConfig.key;
         }
         
-        else if(apiConfig.type == "openrouter"){
-            
+        // 加载OpenRouter配置
+        if (apiKeys.openrouter) {
+            this.openrouterKeyInput.value = apiKeys.openrouter.key || "";
+            this.openrouterModelInput.value = apiKeys.openrouter.model || "";
+        } else if(apiConfig.type == "openrouter"){
             this.openrouterKeyInput.value = apiConfig.key;
-            
             this.openrouterModelInput.value = apiConfig.model;
-            
         }
-        else if(apiConfig.type == "custom"){
+        
+        // 加载Custom配置
+        if (apiKeys.custom) {
+            this.customUrlInput.value = apiKeys.custom.baseUrl || "";
+            this.customKeyInput.value = apiKeys.custom.key || "";
+            this.customModelInput.value = apiKeys.custom.model || "";
+        } else if(apiConfig.type == "custom"){
             this.customUrlInput.value = apiConfig.baseUrl;
             this.customKeyInput.value = apiConfig.key;
             this.customModelInput.value = apiConfig.model;
         }
-        else if(apiConfig.type == "gemini"){
+        
+        // 加载Gemini配置
+        if (apiKeys.gemini) {
+            this.geminiKeyInput.value = apiKeys.gemini.key || "";
+            this.geminiModelInput.value = apiKeys.gemini.model || "";
+        } else if(apiConfig.type == "gemini"){
             this.geminiKeyInput.value = apiConfig.key;
             this.geminiModelInput.value = apiConfig.model;
         }
-        else if(apiConfig.type == "glm"){
+        
+        // 加载GLM配置
+        if (apiKeys.glm) {
+            this.glmKeyInput.value = apiKeys.glm.key || "";
+            this.glmModelSelect.value = apiKeys.glm.model || "";
+        } else if(apiConfig.type == "glm"){
             this.glmKeyInput.value = apiConfig.key;
             this.glmModelSelect.value = apiConfig.model;
         }
@@ -443,6 +466,106 @@ class ApiSelector extends HTMLElement{
         }
     }
 
+    // 添加一个方法来保存所有API类型的配置
+    async saveAllApiConfigs() {
+        // 获取当前配置
+        let config = await ipcRenderer.invoke('get-config');
+        let currentConfig = config[this.confID].connection;
+        
+        // 创建一个包含所有API类型配置的对象
+        const allConfigs = {
+            openai: {
+                type: "openai",
+                baseUrl: "https://api.openai.com/v1",
+                key: this.openaiKeyInput.value,
+                model: this.openaiModelSelect.value,
+                forceInstruct: this.openrouterInstructModeCheckbox.checked,
+                overwriteContext: this.overwriteContextCheckbox.checked,
+                customContext: this.customContextNumber.value
+            },
+            ooba: {
+                type: "ooba",
+                baseUrl: this.oobaUrlInput.value,
+                key: "11111111111111111111",
+                model: "string",
+                forceInstruct: this.openrouterInstructModeCheckbox.checked,
+                overwriteContext: this.overwriteContextCheckbox.checked,
+                customContext: this.customContextNumber.value
+            },
+            openrouter: {
+                type: "openrouter",
+                baseUrl: "https://openrouter.ai/api/v1",
+                key: this.openrouterKeyInput.value,
+                model: this.openrouterModelInput.value,
+                forceInstruct: this.openrouterInstructModeCheckbox.checked,
+                overwriteContext: this.overwriteContextCheckbox.checked,
+                customContext: this.customContextNumber.value
+            },
+            gemini: {
+                type: "gemini",
+                baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+                key: this.geminiKeyInput.value,
+                model: this.geminiModelInput.value,
+                forceInstruct: false,
+                overwriteContext: this.overwriteContextCheckbox.checked,
+                customContext: this.customContextNumber.value
+            },
+            glm: {
+                type: "glm",
+                baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+                key: this.glmKeyInput.value,
+                model: this.glmModelSelect.value,
+                forceInstruct: false,
+                overwriteContext: this.overwriteContextCheckbox.checked,
+                customContext: this.customContextNumber.value
+            },
+            custom: {
+                type: "custom",
+                baseUrl: this.customUrlInput.value,
+                key: this.customKeyInput.value,
+                model: this.customModelInput.value,
+                forceInstruct: false,
+                overwriteContext: this.overwriteContextCheckbox.checked,
+                customContext: this.customContextNumber.value
+            }
+        };
+        
+        // 保留已存在的apiKeys配置（如果有）
+        const existingApiKeys = currentConfig.apiKeys || {};
+        
+        // 合并现有配置和新配置
+        for (const [apiType, apiConfig] of Object.entries(allConfigs)) {
+            // 如果当前API类型的输入字段有值，则更新配置
+            if (apiType === 'openai' && this.openaiKeyInput.value) {
+                existingApiKeys[apiType] = apiConfig;
+            } else if (apiType === 'ooba' && this.oobaUrlInput.value) {
+                existingApiKeys[apiType] = apiConfig;
+            } else if (apiType === 'openrouter' && this.openrouterKeyInput.value) {
+                existingApiKeys[apiType] = apiConfig;
+            } else if (apiType === 'gemini' && this.geminiKeyInput.value) {
+                existingApiKeys[apiType] = apiConfig;
+            } else if (apiType === 'glm' && this.glmKeyInput.value) {
+                existingApiKeys[apiType] = apiConfig;
+            } else if (apiType === 'custom' && this.customKeyInput.value) {
+                existingApiKeys[apiType] = apiConfig;
+            }
+            // 如果没有新值但已有配置，则保留旧配置
+            else if (existingApiKeys[apiType]) {
+                // 保留现有配置
+            }
+        }
+        
+        // 为了确保所有API Key都被保存，我们需要扩展配置结构
+        // 我们将在配置中添加一个apiKeys字段来存储所有API类型的配置
+        const extendedConfig = {
+            ...currentConfig,
+            apiKeys: existingApiKeys
+        };
+        
+        // 保存扩展后的配置
+        ipcRenderer.send('config-change-nested', this.confID, "connection", extendedConfig);
+    }
+
     saveOpenaiConfig(){
         const newConf = {
             type: "openai",
@@ -454,9 +577,11 @@ class ApiSelector extends HTMLElement{
             customContext: this.customContextNumber.value
         }
 
-        //ipcRenderer.send('config-change', this.confID, newConf);
+        // 保存当前配置
         ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
-        //@ts-ignore
+        
+        // 同时保存所有API配置以确保Key不会丢失
+        this.saveAllApiConfigs();
     }
     
 
@@ -472,9 +597,11 @@ class ApiSelector extends HTMLElement{
             customContext: this.customContextNumber.value
         }
 
-        //ipcRenderer.send('config-change', this.confID, newConf);
+        // 保存当前配置
         ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
-        //@ts-ignore
+        
+        // 同时保存所有API配置以确保Key不会丢失
+        this.saveAllApiConfigs();
     }
     
 
@@ -489,9 +616,11 @@ class ApiSelector extends HTMLElement{
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
         }
-        //ipcRenderer.send('config-change', this.confID, newConf);
+        // 保存当前配置
         ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
-        //@ts-ignore
+        
+        // 同时保存所有API配置以确保Key不会丢失
+        this.saveAllApiConfigs();
     }   
 
     saveCustomConfig(){
@@ -504,9 +633,11 @@ class ApiSelector extends HTMLElement{
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
         }
-        //ipcRenderer.send('config-change', this.confID, newConf);
+        // 保存当前配置
         ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
-        //@ts-ignore
+        
+        // 同时保存所有API配置以确保Key不会丢失
+        this.saveAllApiConfigs();
     }  
 
     saveGeminiConfig(){
@@ -519,7 +650,11 @@ class ApiSelector extends HTMLElement{
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
         }
+        // 保存当前配置
         ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        
+        // 同时保存所有API配置以确保Key不会丢失
+        this.saveAllApiConfigs();
     }
 
     saveGlmConfig(){
@@ -532,7 +667,11 @@ class ApiSelector extends HTMLElement{
             overwriteContext: this.overwriteContextCheckbox.checked,
             customContext: this.customContextNumber.value
         }
+        // 保存当前配置
         ipcRenderer.send('config-change-nested', this.confID, "connection", newConf);
+        
+        // 同时保存所有API配置以确保Key不会丢失
+        this.saveAllApiConfigs();
     }
     
 }
