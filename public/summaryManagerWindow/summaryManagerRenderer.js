@@ -125,6 +125,47 @@ function filterSummariesByCharacter() {
         );
     }
     
+    // 按日期降序排序（最新的在前面）
+    filteredSummaries.sort((a, b) => {
+        // 处理中文日期格式，例如 "1128年2月7日"
+        // 提取年、月、日数字
+        const extractDate = (dateStr) => {
+            const match = dateStr.match(/(\d+)年(\d+)月(\d+)日/);
+            if (match) {
+                return {
+                    year: parseInt(match[1]),
+                    month: parseInt(match[2]),
+                    day: parseInt(match[3])
+                };
+            }
+            // 如果不是中文格式，尝试解析为标准日期
+            const date = new Date(dateStr);
+            if (!isNaN(date.getTime())) {
+                return {
+                    year: date.getFullYear(),
+                    month: date.getMonth() + 1,
+                    day: date.getDate()
+                };
+            }
+            // 默认返回一个很早的日期
+            return { year: 0, month: 1, day: 1 };
+        };
+        
+        const dateA = extractDate(a.date);
+        const dateB = extractDate(b.date);
+        
+        // 比较年份
+        if (dateB.year !== dateA.year) {
+            return dateB.year - dateA.year;
+        }
+        // 年份相同，比较月份
+        if (dateB.month !== dateA.month) {
+            return dateB.month - dateA.month;
+        }
+        // 月份相同，比较日期
+        return dateB.day - dateA.day;
+    });
+    
     // 重置当前选中的总结
     currentSummaryIndex = -1;
     resetEditor();
