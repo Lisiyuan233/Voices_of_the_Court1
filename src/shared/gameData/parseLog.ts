@@ -230,8 +230,10 @@ export function removeTooltip(str: string): string {
     // Remove unwanted ASCII control characters and tooltip/onclick prefixes
     let cleanedStr = str.replace(/[\x15]/g, '')
                       .replace(/\^U[^\n]*/g, '')
-                      .replace(/(ONCLICK|TOOLTIP):[A-Z_]+,\d+\s*/g, '')
-                      .replace(/^\s*([A-Z][;\s]\s*)+/, '');
+                      .replace(/\b(?:ONCLICK|TOOLTIP):[A-Z_]+,[^\s)]+/g, '')
+                      .replace(/^\s*([A-Z][;\s]\s*)+/, '')
+                      .replace(/(?<![A-Za-z])L\s+/g, '')
+                      .replace(/(?<![A-Za-z])[A-Z];\s*/g, '');
 
     // If a tooltip description marker ' L; ' exists, take the text after it
     const lSemicolonIndex = cleanedStr.indexOf(' L; ');
@@ -240,8 +242,8 @@ export function removeTooltip(str: string): string {
     }
 
     // Final cleanup on the resulting string
-    cleanedStr = cleanedStr.replace(/!+/g, '')      // remove runs of exclamation marks (don't truncate rest)
-      .replace(/[\s:!']+$/, '')   // Clean any remaining trailing punctuation
+    cleanedStr = cleanedStr.replace(/!+/g, '')
+      .replace(/[\s:!']+$/, '')
       .trim();
 
     return cleanedStr;
