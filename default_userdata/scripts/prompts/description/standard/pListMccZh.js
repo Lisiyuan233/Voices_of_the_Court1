@@ -82,6 +82,7 @@ module.exports = (gameData) =>{
                     marriage(value),  
                     goldStatus(value),
                     age(value), 
+                    describeProwess(value),
                     `信仰：${value.faith}`, 
                     `民族：${value.culture}`]
                 output+=`\n[${value.shortName}'的角色信息: ${secondaryAiItems.join("; ")}]`;
@@ -218,11 +219,9 @@ module.exports = (gameData) =>{
     
     function personalityTraits(char){
         let personalityTraits = filterTraitsToCategory(char.traits, "性格特质");
-    
-        let traitNames = personalityTraits.map(trait => trait.name);
-    
+        let traitTexts = personalityTraits.map(trait => trait.desc ? `${trait.name}：${trait.desc}` : trait.name);
         let output = "性格：("
-        output+= traitNames.join(", ");
+        output+= traitTexts.join(", ");
         output+=")";
     
         return output;
@@ -230,7 +229,7 @@ module.exports = (gameData) =>{
     
     function listRelationsToCharacters(char) {
         if (char.relationsToCharacters.length === 0) {
-            return `${char.shortName}没有什么人际关系。`;
+            return ` `;
         } else {
             return char.relationsToCharacters
                 .map(relation => {
@@ -472,27 +471,17 @@ module.exports = (gameData) =>{
     
     function age(char) {
         const age = char.age;
-    
+        if (age > 13) {
+            return `${age} 岁`;
+        }
         if (age < 3) {
             return `${char.shortName} 是个婴儿，还不会说话，但能通过咿呀声、哭闹或微笑来表达需求。他们大部分时间都在观察周围，伸手去够身边的东西。`;
         } else if (age < 6) {
             return `${char.shortName} 是个小孩子，正学着用简单的短语说话，对周围的一切充满好奇。他们经常玩耍，天真活泼地模仿大人的动作。`;
         } else if (age < 10) {
             return `${char.shortName} 是个儿童，能清晰地说话，喜欢玩游戏和听故事。他们明白一些基本的责任，可能会帮忙做些简单的事，但仍非常依赖他人的指导。`;
-        } else if (age < 13) {
+        } else if (age <= 13) {
             return `${char.shortName} 是个少年，开始承担一些小任务或接受技能训练。他们说话更有自信，开始有了责任感，常常渴望得到长辈的认可。`;
-        } else if (age < 16) {
-            return `${char.shortName} 是个青少年，在言行上表现出独立性。他们可能正在为未来的职责接受训练，并且可能会为承担早期责任而感到自豪。`;
-        } else if (age < 20) {
-            return `${char.shortName} 是个年轻人，自信满满，通常已准备好做决定。他们处理日常事务，言语中透露出雄心壮志和青春活力。`;
-        } else if (age < 30) {
-            return `${char.shortName} 是个成熟的年轻人，做事有目的、有条理。他们常常独立平衡工作和个人事务，说话有目的且充满信念。`;
-        } else if (age < 40) {
-            return `${char.shortName} 经验丰富，行事稳健。他们说话直截了当，稳定地完成任务，值得信赖。`;
-        } else if (age < 60) {
-            return `${char.shortName} 是个阅历丰富的成年人，言行审慎。他们带着一种沉稳的自信，往往会给年轻人提供建议或指导。`;
-        } else {
-            return `${char.shortName} 是位长者，常常善于反思且深思熟虑。他们可能更为内敛，只在必要时发言，但身上散发着一种平静的气质，反映出他们丰富的人生阅历。`;
         }
     }
     
