@@ -1,6 +1,6 @@
-# Voices of the Court
+# Voices of the Court (VOTC)
 
-Voices of the Court is a Crusader Kings 3 mod which integrates Large Language Models into the game. It lets you hold conversations with the characters and also impact the game state to an extend.
+An AI-powered companion for Crusader Kings III that helps you keep track of characters, plots, and storylines. Voices of the Court integrates Large Language Models into the game, letting you hold natural conversations with characters and dynamically influence the game state.
 
 Documentation: https://docs.voicesofthecourt.app
 
@@ -16,11 +16,26 @@ Join our Discord:
 # Gameplay video by DaFloove
 [![link to](https://img.youtube.com/vi/3lhHkXPmis0/0.jpg)](https://www.youtube.com/watch?v=3lhHkXPmis0)
 
-# 功能介绍
+### 🌟 Features
 
-Voices of the Court 是一个为《十字军之王3》设计的模组，它将大型语言模型集成到游戏中，让您能够与游戏中的角色进行对话，并在一定程度上影响游戏状态。
+### 🎮 Configuration Interface
+- **🤖 Multiple AI Models**: Support for OpenAI GPT models, Anthropic Claude, and local models
+- **🧠 Character Memory**: Persistent memory system that tracks character relationships and history
+- **📚 Context Management**: Adjustable context window and conversation history settings
+- **🎯 Custom Prompts**: Personalized system prompts for different character types
+- **🔄 Restore Defaults**: One-click restore to default prompts and settings
 
-## 配置界面详解
+### 💬 Chat Interface
+- **⚡ Real-time Conversations**: Natural dialogue with CK3 characters
+- **👤 Character Profiles**: Detailed information about each character
+- **🔖 Bookmark System**: Save and organize important conversations
+- **📤 Export Functionality**: Export conversations to text files
+
+### 📋 Summary Manager
+- **🤖 Automatic Summaries**: AI-generated summaries of important events
+- **🔖 Bookmark Integration**: Convert bookmarks to summaries
+- **🔍 Search Functionality**: Find specific conversations and summaries
+- **📤 Export Options**: Save summaries in various formats 配置界面详解
 
 应用程序提供了六个主要配置页面，每个页面负责不同的功能设置：
 
@@ -93,7 +108,7 @@ Voices of the Court 是一个为《十字军之王3》设计的模组，它将�
 - **脚本选择**：
   - 角色描述脚本：动态生成角色描述的脚本
   - 示例消息脚本：生成示例对话消息的脚本
-  - 书签：用于特定对话场景的预设配置
+  - 剧本：用于导入的特定剧本文件，包含世界观和角色设定
 
 每个脚本都有标准版本和自定义版本，可以通过下拉菜单选择，并通过"打开文件夹"按钮访问脚本文件。
 
@@ -206,22 +221,67 @@ Voices of the Court 是一个为《十字军之王3》设计的模组，它将�
 3. 所有更改需要点击"保存"按钮才会写入文件
 4. 删除操作不可撤销，请谨慎使用
 
-## 本地设置
+## 🚀 本地设置
 
-1. 克隆仓库
-2. 使用 `npm i` 安装依赖
-3. 使用 `npm run start` 启动开发模式
-4. 使用 `npm run make` 打包应用程序
+### 📥 安装
+1. 下载最新版本的VOTC mod
+2. 解压到您的CK3 mod文件夹
+3. 启动CK3并在启动器中启用mod
+4. 运行VOTC应用程序
 
-## 故障排除
+### ⚙️ 配置
+1. 启动应用程序
+2. 导航到配置界面
+3. 输入您的AI服务API密钥
+4. 调整设置以符合您的偏好
+5. 点击"保存配置"应用更改
 
-- 如果遇到错误或崩溃，请查看system页面中的日志文件
-- 确保CK3用户文件夹路径设置正确
-- 检查API连接配置是否正确，确保网络连接正常，可以访问所选的API服务
-- 确认mod安装正确并启用
+### 🔄 恢复默认设置
+- 使用"恢复默认Prompt"按钮可以一键恢复所有默认prompt设置
+- 在配置界面中可以重置各个单独的配置项
 
-## 贡献
+## 🛠️ 故障排除
+
+### 🔧 常见问题
+
+#### 1. **应用程序无法启动**
+   - 确保已安装所有依赖项：运行 `npm install`
+   - 检查Node.js版本是否兼容
+   - 验证游戏文件路径是否正确
+
+#### 2. **AI连接问题**
+   - 检查API密钥是否正确输入
+   - 验证网络连接是否正常
+   - 确认AI服务商的API状态
+
+#### 3. **游戏集成问题**
+   - 确保CK3游戏正在运行
+   - 检查mod是否正确安装
+   - 验证游戏文件路径配置
+
+#### 4. **性能问题**
+   - 减少上下文窗口大小
+   - 限制对话历史记录数量
+   - 关闭不必要的后台程序
+
+#### 5. **恢复默认设置**
+   - 使用配置界面中的"恢复默认Prompt"按钮
+   - 重新配置API设置和模型参数
+   - 检查配置文件是否正确保存
+
+## 🤝 贡献
 
 欢迎通过以下方式为项目做出贡献：
 - 报告bug和提出功能请求
+
+### 📝 贡献指南
+1. Fork 这个仓库
+2. 创建您的功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开一个 Pull Request
+
+### 📄 许可证
+
+本项目采用 [GPL-3.0 许可证](LICENSE) - 详情请查看 [LICENSE](LICENSE) 文件
 

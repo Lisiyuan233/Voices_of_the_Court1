@@ -17,6 +17,7 @@ import path from 'path';
 import fs from 'fs';
 import { checkUserData } from "./userDataCheck.js";
 import { updateElectronApp } from 'update-electron-app';
+import { ReadmeWindow } from './windows/ReadmeWindow.js';
 const shell = require('electron').shell;
 const packagejson = require('../../package.json');
 
@@ -96,6 +97,7 @@ if(app.isPackaged){
 let configWindow: ConfigWindow;
 let chatWindow: ChatWindow;
 let summaryManagerWindow: SummaryManagerWindow;
+let readmeWindow: ReadmeWindow;
 let conversationHistoryWindow: ConversationHistoryWindow;
 
 let clipboardListener = new ClipboardListener();
@@ -267,6 +269,11 @@ app.on('ready',  async () => {
     console.log('ConfigWindow created.');
     chatWindow = new ChatWindow();
     console.log('ChatWindow created.');
+    readmeWindow = new ReadmeWindow();
+    console.log('ReadmeWindow created.');
+    
+    // 检查是否是首次启动
+    checkFirstRunAndShowReadme();
     
     chatWindow.window.on('closed', () =>{
         console.log('Chat window closed. Quitting application.');
@@ -284,10 +291,76 @@ app.on('ready',  async () => {
    
 });
 
+// 检查是否是首次启动并显示README窗口
+function checkFirstRunAndShowReadme() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const readmePreferencePath = path.join(userDataPath, 'readme_preference.json');
+    
+    // 检查是否存在README显示偏好设置
+    let showReadme = true;
+    if (fs.existsSync(readmePreferencePath)) {
+      try {
+        const preference = JSON.parse(fs.readFileSync(readmePreferencePath, 'utf8'));
+        showReadme = preference.showReadme !== false; // 默认为true
+      } catch (error) {
+        console.error('读取README偏好设置失败:', error);
+        showReadme = true;
+      }
+    }
+    
+    if (showReadme && readmeWindow) {
+      console.log('首次启动，显示README窗口');
+      setTimeout(() => {
+        readmeWindow.show();
+      }, 1000); // 延迟1秒显示，确保主窗口完全加载
+    }
+  } catch (error) {
+    console.error('检查首次启动时出错:', error);
+  }
+}
+
 ipcMain.on('update-app', ()=>{
     console.log('IPC: Received update-app event.');
     checkForUpdates();
 });
+
+// README窗口相关IPC事件
+ipcMain.on('close-readme-window', () => {
+    console.log('IPC: 关闭README窗口');
+    if (readmeWindow && !readmeWindow.isDestroyed()) {
+        readmeWindow.close();
+    }
+});
+
+ipcMain.on('set-readme-preference', (event, showReadme: boolean) => {
+    console.log('IPC: 设置README显示偏好为:', showReadme);
+    try {
+        const userDataPath = app.getPath('userData');
+        const readmePreferencePath = path.join(userDataPath, 'readme_preference.json');
+        const preference = { showReadme };
+        fs.writeFileSync(readmePreferencePath, JSON.stringify(preference, null, 2));
+        console.log('README显示偏好已保存');
+    } catch (error) {
+        console.error('保存README偏好设置失败:', error);
+    }
+});
+
+ipcMain.on('open-external-link', (event, url: string) => {
+      console.log('IPC: 打开外部链接:', url);
+      shell.openExternal(url);
+  });
+
+  ipcMain.on('open-readme-window', () => {
+      console.log('IPC: 打开README窗口');
+      if (readmeWindow && !readmeWindow.isDestroyed()) {
+          readmeWindow.show();
+      } else {
+          // 如果窗口不存在或被销毁，重新创建
+          readmeWindow = new ReadmeWindow();
+          readmeWindow.show();
+      }
+  });
 
 ipcMain.on('clear-summaries', ()=>{
     console.log('IPC: Received clear-summaries event.');
