@@ -60,6 +60,7 @@ export class Config{
     selectedSelfTalkExMsgScript!: string;
     selfTalkSummarizePrompt!: string;
     narrativePrompt!: string;
+    sceneDescriptionPrompt!: string;
 
     constructor(configPath: string){  
         const obj = JSON.parse(fs.readFileSync(configPath).toString());

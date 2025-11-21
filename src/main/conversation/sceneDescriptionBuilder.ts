@@ -32,6 +32,7 @@ export function buildSceneDescriptionPrompt(conv: Conversation): Message[] {
     }
 
     // 构建提示词，包含当前对话描述和之前的总结
+    const sceneDescriptionPrompt = conv.config.sceneDescriptionPrompt || "请生成一个引人入胜的场景描述，为角色们的对话提供背景和氛围。";
     const prompt = `根据以下信息，生成一个简短的角色扮演场景描述（50-100字）：
 
 当前对话描述：${conv.description}
@@ -39,7 +40,7 @@ export function buildSceneDescriptionPrompt(conv: Conversation): Message[] {
 之前的对话总结：
 ${previousSummaries.length > 0 ? previousSummaries.map(summary => `- ${summary}`).join('\n') : '暂无之前的对话总结'}
 
-请生成一个引人入胜的场景描述，为角色们的对话提供背景和氛围。`;
+${sceneDescriptionPrompt}`;
 
     // 构建消息数组
     const messages: Message[] = [
