@@ -199,6 +199,22 @@ textarea{
   color:red
 }
 
+.btn-warning {
+  background-color: #1b1a1a;
+  color: white;
+  border: 1px solid #1b1a1a;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-warning:hover {
+  background-color: #1f0806;
+  border-color: #1f0806;
+}
+
 .tooltip {
   position: relative;
   display: inline-block;
