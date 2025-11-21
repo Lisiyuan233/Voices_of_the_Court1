@@ -217,6 +217,16 @@ em{
     background-color: rgba(105, 105, 105, 0.1);
 }
 
+.scene-description-message{
+    color: #d4af37;
+    font-style: italic;
+    margin: 10px 0;
+    padding: 8px 12px;
+    border-left: 3px solid #d4af37;
+    background-color: rgba(212, 175, 55, 0.1);
+    font-size: 105%;
+}
+
 .loading{
     margin-left: 5px;
 }

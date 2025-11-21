@@ -45,6 +45,7 @@ export class Config{
     dynamicCharacterSelection!: boolean;
     validateCharacterIdentity!: boolean;
     showSuggestionsButton!: boolean;
+    generateSceneDescription!: boolean;
 
     summariesInsertDepth!: number;
     memoriesInsertDepth!: number;

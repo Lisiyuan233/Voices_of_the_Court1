@@ -78,6 +78,7 @@
 	"dynamicCharacterSelection": false,
 	"validateCharacterIdentity": false,
 	"showSuggestionsButton": true,
+	"generateSceneDescription": true,
 	"summariesInsertDepth": 6,
 	"memoriesInsertDepth": 5,
 	"descInsertDepth": 4,

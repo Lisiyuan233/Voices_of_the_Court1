@@ -6,6 +6,7 @@ import { ApiConnection} from '../../shared/apiConnection.js';
 import { checkActions } from './checkActions.js';
 import { convertChatToText, buildChatPrompt, buildResummarizeChatPrompt, convertChatToTextNoNames} from './promptBuilder.js';
 import { generateSuggestions } from './suggestionBuilder.js';
+import { generateSceneDescription } from './sceneDescriptionBuilder.js';
 import { cleanMessageContent } from './messageCleaner.js';
 import { summarize } from './summarize.js';
 import fs from 'fs';
@@ -112,6 +113,11 @@ export class Conversation{
         [this.textGenApiConnection, this.summarizationApiConnection, this.actionsApiConnection] = this.getApiConnections();
         
         this.loadConfig();
+        
+        // 如果启用了场景描述生成功能，在对话开始时生成场景描述
+        if (this.config.generateSceneDescription) {
+            this.generateInitialSceneDescription();
+        }
     }
 
     pushMessage(message: Message): void{           
@@ -1038,6 +1044,41 @@ ${character.fullName}的发言：`
             console.log(`Loaded custom action: ${file}`);
         }
         console.log(`Finished loading actions. Total actions loaded: ${this.actions.length}`);
+    }
+
+    /**
+     * 生成初始场景描述
+     * 在对话开始时为角色提供对话背景和情境信息
+     */
+    private async generateInitialSceneDescription(): Promise<void> {
+        console.log('Starting initial scene description generation.');
+        
+        try {
+            // 生成场景描述
+            const sceneDescription = await generateSceneDescription(this);
+            
+            if (sceneDescription && sceneDescription.trim()) {
+                // 创建场景描述消息
+                const sceneMessage: Message = {
+                    role: "system",
+                    name: "场景描述",
+                    content: sceneDescription
+                };
+                
+                // 将场景描述添加到消息列表的开头
+                this.messages.unshift(sceneMessage);
+                
+                // 发送场景描述到聊天窗口
+                this.chatWindow.window.webContents.send('scene-description', sceneDescription);
+                
+                console.log(`Initial scene description generated and added to conversation: ${sceneDescription.substring(0, 100)}...`);
+            } else {
+                console.log('No scene description was generated or description was empty.');
+            }
+        } catch (error) {
+            console.error('Error generating initial scene description:', error);
+            // 如果生成失败，不影响对话的正常进行
+        }
     }
 
 }

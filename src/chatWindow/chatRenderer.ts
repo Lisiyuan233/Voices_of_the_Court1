@@ -294,4 +294,26 @@ ipcRenderer.on('error-message', (e, errorMessage: string) =>{
     displayErrorMessage(errorMessage);
 })
 
+// 监听场景描述事件
+ipcRenderer.on('scene-description', (e, sceneDescription: string) =>{
+    if (sceneDescription && sceneDescription.trim()) {
+        // 创建场景描述消息元素
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add('scene-description-message');
+        
+        // 创建场景描述内容
+        const sceneDescSpan = document.createElement('span');
+        sceneDescSpan.innerText = sceneDescription;
+        sceneDescSpan.classList.add('scene-description-text');
+        
+        messageDiv.appendChild(sceneDescSpan);
+        
+        // 将场景描述插入到消息列表的开头
+        chatMessages.insertBefore(messageDiv, chatMessages.firstChild);
+        
+        console.log(`Scene description displayed: ${sceneDescription.substring(0, 50)}...`);
+    }
+})
+
 
