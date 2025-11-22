@@ -17,6 +17,7 @@ module.exports = (gameData) =>{
     }
     const scene = gameData.scene;
     
+// 在此处可添加或修改自定义特质描述，新增内容请遵循原有数据结构，保持“特质名: 描述”的键值对形式，并确保与下方 PERSONALITY_DESCRIPTIONS 对象格式一致，自己修改后要放在custom文件夹中不然下次启动会被覆盖。
     const PERSONALITY_DESCRIPTIONS = {
         "勇敢": "面对挑战与危险无所畏惧，积极承担风险与职责；在对话中常主动提议行动，语气坚定，敢于承担责任，遇冲突不退缩。",
         "怯懦": "回避挑战与惊吓，倾向选择安全与低风险的道路；说话谨慎，常用模糊或推脱措辞，遇压力易妥协或转移话题。",
@@ -53,7 +54,12 @@ module.exports = (gameData) =>{
         "虐待狂": "以他人受苦为乐，倾向施加伤害；语调兴奋，对求饶表现愉悦，主动提议惩罚性方案。",
         "多变": "观点与选择常变化无常，难以预测；同一话题前后矛盾，对承诺随时反悔，话题跳跃大。",
         "固执": "不轻易让步，坚守己见，抵制改变；重复原有立场，对新证据表现排斥，谈判中寸步不让。",
-        "怪客": "行为异于常人，模式不稳定但并非彻底失序；用词或语调突兀，喜用自创比喻，话题跳跃，对常规社交规则表现漠视。"
+        "怪客": "行为异于常人，模式不稳定但并非彻底失序；用词或语调突兀，喜用自创比喻，话题跳跃，对常规社交规则表现漠视。",
+        "螓首蛾眉": "面容姣好，眉目如画，自带温婉柔和的气质；言谈举止间常显端庄，易赢得他人好感。",
+        "英姿飒爽": "神采飞扬，气度豪迈",
+        "倾国倾城": "美貌绝伦，令人一见难忘，自带光环效应；说话时常被倾听，易成为焦点，话题不自觉围绕其展开。",
+        "海格力斯": "拥有超凡体魄与力量，勇猛过人",
+        "阿玛宗": "拥有超凡体魄与力量，勇猛过人"
     };
 
     let playerPersonaItems = [
@@ -247,10 +253,13 @@ module.exports = (gameData) =>{
     function otherTraits(char){
         let otherTraits = char.traits.filter((trait) => trait.category != "性格特质");
     
-        let traitNames = otherTraits.map(trait => trait.name);
+        let traitTexts = otherTraits.map(trait => {
+            const d = PERSONALITY_DESCRIPTIONS[trait.name] || trait.desc;
+            return d ? `${trait.name}：${d}` : trait.name;
+        });
     
         let output = "拥有特质：("
-        output+= traitNames.join(", ");
+        output+= traitTexts.join(", ");
         output+=")";
     
         return output;
