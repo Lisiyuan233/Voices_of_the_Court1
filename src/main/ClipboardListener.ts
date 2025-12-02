@@ -62,7 +62,10 @@ export class ClipboardListener extends EventEmitter{
                 break;
                 case "CONVERSATION_HISTORY":
                     this.emit('VOTC:CONVERSATION_HISTORY');
-                break;               
+                break;
+                case "LETTER":
+                    this.emit('VOTC:LETTER');
+                break;
             }
             
             

@@ -2,11 +2,12 @@ import { app, ipcMain, dialog, autoUpdater, Tray, Menu} from "electron";
 import {ConfigWindow} from './windows/ConfigWindow.js';
 import {ChatWindow} from './windows/ChatWindow.js';
 import {SummaryManagerWindow} from './windows/SummaryManagerWindow.js';
-import {ConversationHistoryWindow} from './windows/ConversationHistoryWindow.js';
+import { ConversationHistoryWindow } from './windows/ConversationHistoryWindow.js';
 import { Config } from '../shared/Config.js';
 import { ClipboardListener } from "./ClipboardListener.js";
 import { Conversation } from "./conversation/Conversation.js";
 import { GameData } from "../shared/gameData/GameData.js";
+import { LetterReplyGenerator } from "./letter/LetterReplyGenerator.js";
 import { parseLog } from "../shared/gameData/parseLog.js";
 import { parseLogForBookmarks } from "./parseLogforbookmarks.js";
 import { processBookmarkToSummary } from "./bookmarktosummary.js";
@@ -494,6 +495,37 @@ clipboardListener.on('VOTC:CONVERSATION_HISTORY', async () => {
         console.log('Conversation history window opened.');
     } catch (error) {
         console.error('Error opening conversation history window:', error);
+    }
+})
+
+clipboardListener.on('VOTC:LETTER', async () => {
+    console.log('ClipboardListener: VOTC:LETTER event detected.');
+    try {
+        const debugLogPath = path.join(config.userFolderPath, 'logs', 'debug.log');
+        
+        // 解析游戏数据
+        const gameData = await parseLog(debugLogPath);
+        if (!gameData) {
+            console.error('Failed to parse game data from debug.log');
+            return;
+        }
+
+        // 创建信件回复生成器
+        const letterReplyGenerator = new LetterReplyGenerator(config);
+        
+        // 生成回信
+        const replyContent = await letterReplyGenerator.generateLetterReply(gameData, debugLogPath);
+        if (!replyContent) {
+            console.error('Failed to generate letter reply');
+            return;
+        }
+
+        // 写入letter.txt文件
+        letterReplyGenerator.writeLetterReply(replyContent, config.userFolderPath);
+        console.log('Letter reply generated and written successfully.');
+        
+    } catch (error) {
+        console.error('Error processing VOTC:LETTER event:', error);
     }
 })
 
