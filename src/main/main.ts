@@ -513,15 +513,13 @@ clipboardListener.on('VOTC:LETTER', async () => {
         // 创建信件回复生成器
         const letterReplyGenerator = new LetterReplyGenerator(config);
         
-        // 生成回信
-        const replyContent = await letterReplyGenerator.generateLetterReply(gameData, debugLogPath);
+        // 生成回信并写入文件（新方法会自动处理letterId）
+        const replyContent = await letterReplyGenerator.generateLetterReply(gameData, debugLogPath, config.userFolderPath);
         if (!replyContent) {
             console.error('Failed to generate letter reply');
             return;
         }
 
-        // 写入letter.txt文件
-        letterReplyGenerator.writeLetterReply(replyContent, config.userFolderPath);
         console.log('Letter reply generated and written successfully.');
         
     } catch (error) {
