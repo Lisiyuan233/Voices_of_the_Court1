@@ -401,7 +401,7 @@ ${conversationSummary}${memoryContent}你收到了一封来自${player.fullName}
     create_artifact = {
 	name = votc_huixin_title${letterNumber}
 	description = "${replyContent}"
-	type = miscellaneous
+	type = journal
 	visuals = scroll
 	creator = global_var:message_second_scope_${letterId}
 	modifier = artifact_monthly_minor_prestige_1_modifier
