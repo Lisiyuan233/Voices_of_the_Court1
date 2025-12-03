@@ -5,6 +5,7 @@ import { Message } from "../ts/conversation_interfaces";
 import { app } from 'electron';
 import * as fs from "fs";
 import * as path from "path";
+import { readSummaryFile, saveSummaryFile } from '../summaryManager.js';
 
 export class LetterReplyGenerator {
     private apiConnection: ApiConnection;
@@ -63,7 +64,7 @@ export class LetterReplyGenerator {
      * @param letterContent 信件内容
      * @returns 构建的prompt
      */
-    private buildLetterPrompt(gameData: GameData, letterContent: { language: string; content: string; letterId: string }): string {
+    private async buildLetterPrompt(gameData: GameData, letterContent: { language: string; content: string; letterId: string }): Promise<string> {
         const player = gameData.characters.get(gameData.playerID);
         const ai = gameData.characters.get(gameData.aiID);
 
@@ -75,11 +76,29 @@ export class LetterReplyGenerator {
         const pListLetter = require("../../../default_userdata/scripts/prompts/description/standard/pListLetter.js");
         const characterDescription = pListLetter(gameData);
 
+        // 读取对话总结
+        let conversationSummary = '';
+        try {
+            const summaries = await readSummaryFile(String(gameData.playerID));
+            const aiSummaries = summaries.filter(summary => summary.characterId === String(gameData.aiID));
+            
+            if (aiSummaries.length > 0) {
+                // 获取最新的总结
+                const latestSummary = aiSummaries[0];
+                conversationSummary = `以下是之前与${player.fullName}的对话总结：\n${latestSummary.content}\n\n`;
+                console.log(`Loaded conversation summary for AI ID ${gameData.aiID}: ${latestSummary.content.substring(0, 100)}...`);
+            } else {
+                console.log(`No conversation summary found for AI ID ${gameData.aiID}`);
+            }
+        } catch (error) {
+            console.warn(`Failed to load conversation summary: ${error}`);
+        }
+
         const prompt = `你正在扮演${ai.fullName}。
 
 ${characterDescription}
 
-你收到了一封来自${player.fullName}的信件，内容如下：
+${conversationSummary}你收到了一封来自${player.fullName}的信件，内容如下：
 "${letterContent.content}"
 
 信件要求使用${letterContent.language}进行回复。
@@ -113,7 +132,7 @@ ${characterDescription}
             }
 
             // 构建prompt
-            const promptText = this.buildLetterPrompt(gameData, letterContent);
+            const promptText = await this.buildLetterPrompt(gameData, letterContent);
             console.log(`Generated letter prompt: ${promptText.substring(0, 200)}...`);
 
             // 将prompt转换为Message数组格式
@@ -139,6 +158,9 @@ ${characterDescription}
             
             // 将回信写入对应的文件并保存历史
             this.writeLetterReply(response.trim(), userFolderPath, letterContent, gameData);
+            
+            // 生成信件总结并保存
+            await this.generateAndSaveLetterSummary(gameData, letterContent, response.trim());
             
             return response.trim();
         } catch (error) {
@@ -209,6 +231,98 @@ ${characterDescription}
             
         } catch (error) {
             console.error(`Error saving letter history: ${error}`);
+        }
+    }
+
+    /**
+     * 生成信件往来的总结并保存到总结文件中
+     * @param gameData 游戏数据
+     * @param letterContent 玩家信件内容
+     * @param replyContent AI回信内容
+     */
+    private async generateAndSaveLetterSummary(gameData: GameData, letterContent: { language: string; content: string; letterId: string }, replyContent: string): Promise<void> {
+        try {
+            const player = gameData.getPlayer();
+            const ai = gameData.getAi();
+            
+            if (!player || !ai) {
+                console.error('Player or AI character data not found for summary generation');
+                return;
+            }
+
+            // 构建总结生成prompt
+            const summaryPrompt = `请根据以下信件往来内容生成一个简洁的总结：
+
+玩家${player.fullName}的来信：
+"${letterContent.content}"
+
+角色${ai.fullName}的回信：
+"${replyContent}"
+
+请生成一个简洁的总结，描述这次信件往来的主要内容。总结应该：
+1. 简洁明了，不超过100字
+2. 突出信件往来的核心内容
+3. 体现角色之间的关系和互动特点
+
+请直接写出总结内容，不要添加任何解释或说明。`;
+
+            // 使用LLM生成总结
+            const summaryMessages: Message[] = [
+                {
+                    role: "user",
+                    content: summaryPrompt
+                }
+            ];
+
+            const summaryContent = await this.apiConnection.complete(summaryMessages, false, {
+                max_tokens: 150,
+                temperature: 0.3 // 使用较低的温度以获得更稳定的总结
+            });
+
+            if (!summaryContent || summaryContent.trim() === '') {
+                console.warn('Empty summary content generated');
+                return;
+            }
+
+            console.log(`Generated letter summary: ${summaryContent.trim()}`);
+
+            // 直接使用游戏数据中的日期
+            const chineseDate = gameData.date;
+
+            // 构建新的总结对象
+            const newSummary = {
+                date: chineseDate,
+                content: summaryContent.trim()
+            };
+
+            // 读取现有的总结文件
+            let existingSummaries = [];
+            try {
+                existingSummaries = await readSummaryFile(String(gameData.playerID));
+            } catch (error) {
+                console.log('No existing summaries found, creating new summary file');
+            }
+
+            // 获取当前AI角色的现有总结
+            const aiCharacterId = String(gameData.aiID);
+            const aiCharacterSummaries = existingSummaries.filter(summary => summary.characterId === aiCharacterId);
+            const otherSummaries = existingSummaries.filter(summary => summary.characterId !== aiCharacterId);
+            
+            // 添加新的总结到当前AI角色的总结列表中（放在最前面，最新的在前）
+            const updatedAiSummaries = [{
+                ...newSummary,
+                characterId: aiCharacterId
+            }, ...aiCharacterSummaries];
+            
+            // 合并所有总结（当前AI角色的总结在前，其他角色的总结在后）
+            const updatedSummaries = [...updatedAiSummaries, ...otherSummaries];
+
+            // 保存更新后的总结
+            await saveSummaryFile(String(gameData.playerID), updatedSummaries);
+            console.log(`Letter summary saved for AI ID ${gameData.aiID}`);
+
+        } catch (error) {
+            console.error(`Error generating and saving letter summary: ${error}`);
         }
     }
 
