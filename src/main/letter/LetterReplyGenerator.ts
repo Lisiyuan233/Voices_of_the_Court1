@@ -6,6 +6,7 @@ import { app } from 'electron';
 import * as fs from "fs";
 import * as path from "path";
 import { readSummaryFile, saveSummaryFile } from '../summaryManager.js';
+import { createMemoryString } from '../conversation/promptBuilder';
 
 export class LetterReplyGenerator {
     private apiConnection: ApiConnection;
@@ -83,10 +84,13 @@ export class LetterReplyGenerator {
             const aiSummaries = summaries.filter(summary => summary.characterId === String(gameData.aiID));
             
             if (aiSummaries.length > 0) {
-                // 获取最新的总结
-                const latestSummary = aiSummaries[0];
-                conversationSummary = `以下是之前与${player.fullName}的对话总结：\n${latestSummary.content}\n\n`;
-                console.log(`Loaded conversation summary for AI ID ${gameData.aiID}: ${latestSummary.content.substring(0, 100)}...`);
+                // 读取该角色的所有总结，按时间顺序排列（最新的在前）
+                const allSummaries = aiSummaries.map((summary, index) => 
+                    `${index + 1}. ${summary.date}: ${summary.content}`
+                ).join('\n');
+                
+                conversationSummary = `以下是之前与${player.fullName}的对话总结：\n${allSummaries}\n\n`;
+                console.log(`Loaded ${aiSummaries.length} conversation summaries for AI ID ${gameData.aiID}`);
             } else {
                 console.log(`No conversation summary found for AI ID ${gameData.aiID}`);
             }
@@ -94,25 +98,59 @@ export class LetterReplyGenerator {
             console.warn(`Failed to load conversation summary: ${error}`);
         }
 
+        // 读取记忆内容
+        let memoryContent = '';
+        try {
+            // 创建临时的conversation对象来获取记忆内容
+            const tempConversation = {
+                gameData: gameData,
+                config: {
+                    memoriesPrompt: "相关记忆：",
+                    maxMemoryTokens: 1000
+                },
+                textGenApiConnection: this.apiConnection
+            } as any;
+            
+            const memoryString = createMemoryString(tempConversation);
+            if (memoryString && memoryString.trim() !== '') {
+                memoryContent = `${memoryString}\n\n`;
+                console.log(`Loaded memory content for letter prompt: ${memoryString.substring(0, 100)}...`);
+            } else {
+                console.log(`No memory content found for letter prompt`);
+            }
+        } catch (error) {
+            console.warn(`Failed to load memory content: ${error}`);
+        }
+
         const prompt = `你正在扮演${ai.fullName}。
 
 ${characterDescription}
 
-${conversationSummary}你收到了一封来自${player.fullName}的信件，内容如下：
+${conversationSummary}${memoryContent}你收到了一封来自${player.fullName}的信件，内容如下：
 "${letterContent.content}"
 
 信件要求使用${letterContent.language}进行回复。
 
-请根据你的角色性格、背景、与写信人的关系，以及当前的游戏情境，写一封合适的回信。回信应该：
+请根据你的角色性格、背景、与写信人的关系、相关记忆内容，以及当前的游戏情境，写一封合适的回信。回信应该：
 1. 使用${letterContent.language}书写
 2. 体现你的角色性格和立场
 3. 回应信件中的主要内容
 4. 语气要符合你的身份和与写信人的关系
 5. 长度适中，表达清晰
+6. 适当参考相关记忆内容，使回信更加贴合角色背景
 
 请直接写出回信内容，不要添加任何解释或说明。`;
 
         return prompt;
+    }
+
+    /**
+     * 转义模型回复中的引号，将普通引号替换为中文引号
+     * @param text 原始文本
+     * @returns 转义后的文本
+     */
+    private escapeQuotes(text: string): string {
+        return text.replace(/"/g, '“').replace(/'/g, '’');
     }
 
     /**
@@ -154,15 +192,18 @@ ${conversationSummary}你收到了一封来自${player.fullName}的信件，内�
                 return null;
             }
 
-            console.log(`Generated letter reply: ${response.substring(0, 100)}...`);
+            // 转义回复中的引号
+            const escapedResponse = this.escapeQuotes(response.trim());
+            
+            console.log(`Generated letter reply: ${escapedResponse.substring(0, 100)}...`);
             
             // 将回信写入对应的文件并保存历史
-            this.writeLetterReply(response.trim(), userFolderPath, letterContent, gameData);
+            this.writeLetterReply(escapedResponse, userFolderPath, letterContent, gameData);
             
             // 生成信件总结并保存
-            await this.generateAndSaveLetterSummary(gameData, letterContent, response.trim());
+            await this.generateAndSaveLetterSummary(gameData, letterContent, escapedResponse);
             
-            return response.trim();
+            return escapedResponse;
         } catch (error) {
             console.error(`Error generating letter reply: ${error}`);
             return null;

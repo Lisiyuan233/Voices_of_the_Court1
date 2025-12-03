@@ -432,7 +432,7 @@ function createSecretString(conv: Conversation): string{
     return output+"\n\n";
 }
 
-function createMemoryString(conv: Conversation): string{
+export function createMemoryString(conv: Conversation): string{
 
     let allMemories: Memory[] = [];
 
