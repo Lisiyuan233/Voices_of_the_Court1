@@ -121,13 +121,8 @@ export class Conversation{
         
         // 如果启用了自动生成建议功能，在对话开始时生成建议
         if (this.config.autoGenerateSuggestions) {
-            // 如果场景描述生成也启用了，等待场景描述生成完成后再生成建议
-            if (this.config.generateSceneDescription) {
-                // 等待一段时间让场景描述生成完成
-                setTimeout(() => {
-                    this.generateInitialSuggestions();
-                }, 2000);
-            } else {
+            // 如果场景描述生成也启用了，会在场景描述生成完成后自动调用建议生成
+            if (!this.config.generateSceneDescription) {
                 // 如果没有启用场景描述生成，直接生成建议
                 this.generateInitialSuggestions();
             }
@@ -1097,6 +1092,12 @@ ${character.fullName}的发言：`
         } catch (error) {
             console.error('Error generating initial scene description:', error);
             // 如果生成失败，不影响对话的正常进行
+        }
+        
+        // 场景描述生成完成后，如果启用了自动生成建议功能，则生成建议
+        if (this.config.autoGenerateSuggestions) {
+            console.log('Scene description generation completed, now generating suggestions.');
+            this.generateInitialSuggestions();
         }
     }
 
