@@ -79,6 +79,8 @@
 	"validateCharacterIdentity": false,
 	"showSuggestionsButton": true,
 	"generateSceneDescription": true,
+	"autoGenerateSuggestions": false,
+	"autoSendSuggestion": false,
 	"summariesInsertDepth": 6,
 	"memoriesInsertDepth": 5,
 	"descInsertDepth": 4,

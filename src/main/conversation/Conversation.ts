@@ -118,6 +118,20 @@ export class Conversation{
         if (this.config.generateSceneDescription) {
             this.generateInitialSceneDescription();
         }
+        
+        // 如果启用了自动生成建议功能，在对话开始时生成建议
+        if (this.config.autoGenerateSuggestions) {
+            // 如果场景描述生成也启用了，等待场景描述生成完成后再生成建议
+            if (this.config.generateSceneDescription) {
+                // 等待一段时间让场景描述生成完成
+                setTimeout(() => {
+                    this.generateInitialSuggestions();
+                }, 2000);
+            } else {
+                // 如果没有启用场景描述生成，直接生成建议
+                this.generateInitialSuggestions();
+            }
+        }
     }
 
     pushMessage(message: Message): void{           
@@ -188,6 +202,11 @@ export class Conversation{
         
         this.chatWindow.window.webContents.send('actions-receive', []);
         console.log('Finished generating AI messages for all characters.');
+        
+        // 如果启用了自动生成建议功能，在对话结束时生成建议
+        if (this.config.autoGenerateSuggestions) {
+            await this.generateInitialSuggestions();
+        }
     }
 
     /**
@@ -1081,4 +1100,28 @@ ${character.fullName}的发言：`
         }
     }
 
+    /**
+     * 生成初始建议
+     * 在对话开始时为用户提供输入建议
+     */
+    private async generateInitialSuggestions(): Promise<void> {
+        console.log('Starting initial suggestions generation.');
+        
+        try {
+            // 生成建议
+            const suggestions = await this.generateSuggestions();
+            
+            if (suggestions && suggestions.length > 0) {
+                // 发送建议到聊天窗口
+                this.chatWindow.window.webContents.send('suggestions-response', suggestions);
+                
+                console.log(`Initial suggestions generated and sent to chat window: ${suggestions.length} suggestions`);
+            } else {
+                console.log('No suggestions were generated or suggestions array was empty.');
+            }
+        } catch (error) {
+            console.error('Error generating initial suggestions:', error);
+            // 如果生成失败，不影响对话的正常进行
+        }
+    }
 }

@@ -46,6 +46,8 @@ export class Config{
     validateCharacterIdentity!: boolean;
     showSuggestionsButton!: boolean;
     generateSceneDescription!: boolean;
+    autoGenerateSuggestions!: boolean;
+    autoSendSuggestion!: boolean;
 
     summariesInsertDepth!: number;
     memoriesInsertDepth!: number;

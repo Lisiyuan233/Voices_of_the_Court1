@@ -32,6 +32,7 @@ let loadingDots: any;
 let playerName: string;
 let aiName: string;
 let showSuggestionsButton: boolean = true; // 默认显示建议按钮
+let autoSendSuggestion: boolean = false; // 默认不自动发送建议
 
 
 async function initChat(){
@@ -176,7 +177,7 @@ function displaySuggestions(suggestions: string[]) {
             suggestionItem.textContent = suggestion
             
             // 点击推荐语句时，将其填入输入框
-            suggestionItem.addEventListener('click', () => {
+            suggestionItem.addEventListener('click', async () => {
                 // 处理建议文本：移除引号、前面的序号以及结尾的括号内容
                 let processedText = suggestion
                     .replace(/^\d+\.\s*/, '') // 移除开头的序号（如"1. "）
@@ -187,7 +188,26 @@ function displaySuggestions(suggestions: string[]) {
                 
                 chatInput.value = processedText
                 suggestionsContainer.style.display = 'none'
-                chatInput.focus()
+                
+                // 如果启用了自动发送建议功能，直接发送消息
+                if (autoSendSuggestion) {
+                    console.log('Auto-sending suggestion:', processedText);
+                    const messageText = processedText;
+                    chatInput.value = ''
+
+                    let message: Message = {
+                        role: "user",
+                        name: playerName,
+                        content: messageText
+                    }
+
+                    await displayMessage(message);
+                    showLoadingDots();
+                    ipcRenderer.send('message-send', message);
+                } else {
+                    console.log('Not auto-sending suggestion, autoSendSuggestion is:', autoSendSuggestion);
+                    chatInput.focus()
+                }
             })
             
             suggestionsList.appendChild(suggestionItem)
@@ -209,11 +229,25 @@ leaveButton.addEventListener("click", ()=>{
     ipcRenderer.send('chat-stop');
 });
 
+// 更新建议容器样式的函数
+function updateSuggestionsContainerStyle() {
+    const isChineseTheme = document.body.classList.contains('theme-chinese');
+    
+    if (isChineseTheme && autoSendSuggestion) {
+        document.body.classList.add('auto-send-suggestions');
+    } else {
+        document.body.classList.remove('auto-send-suggestions');
+    }
+}
+
 // 监听主题更新事件
 ipcRenderer.on('update-theme', (event, theme: string) => {
     document.body.classList.remove('theme-original', 'theme-chinese');
     document.body.classList.add(`theme-${theme}`);
     localStorage.setItem('selectedTheme', theme);
+    
+    // 更新建议容器样式
+    updateSuggestionsContainerStyle();
 });
 
     // 推荐输入语句功能事件处理
@@ -232,11 +266,17 @@ ipcRenderer.on('update-theme', (event, theme: string) => {
 
 // 监听配置变更
     ipcRenderer.on('config-change', (event, key, value) => {
+        console.log(`Received config-change in chat window: ${key} = ${value}`);
         if (key === 'showSuggestionsButton') {
             showSuggestionsButton = value;
             if (suggestionsButton) {
                 suggestionsButton.style.display = showSuggestionsButton ? 'block' : 'none';
             }
+        } else if (key === 'autoSendSuggestion') {
+            autoSendSuggestion = value;
+            console.log(`autoSendSuggestion updated to: ${autoSendSuggestion}`);
+            // 更新建议容器样式
+            updateSuggestionsContainerStyle();
         }
     })
 
@@ -258,13 +298,18 @@ ipcRenderer.on('chat-start', async (e, gameData: GameData) =>{
     try {
         const config = await ipcRenderer.invoke('get-config');
         showSuggestionsButton = config.showSuggestionsButton !== undefined ? config.showSuggestionsButton : true;
+        autoSendSuggestion = config.autoSendSuggestion !== undefined ? config.autoSendSuggestion : false;
     } catch (error) {
         console.error('Error getting config:', error);
         showSuggestionsButton = true; // 默认显示
+        autoSendSuggestion = false; // 默认不自动发送建议
     }
     
     initChat();
     document.body.style.display = '';
+    
+    // 初始化建议容器样式
+    updateSuggestionsContainerStyle();
 })
 
 ipcRenderer.on('message-receive', async (e, message: Message, waitForActions: boolean)=>{

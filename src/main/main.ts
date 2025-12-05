@@ -581,6 +581,10 @@ ipcMain.on('config-change', (e, confID: string, newValue: any) =>{
         conversation.updateConfig(config);
     }
     
+    // 将配置变更发送到聊天窗口
+    if (chatWindow.window) {
+        chatWindow.window.webContents.send('config-change', confID, newValue);
+    }
 })
 
 ipcMain.on('config-change-nested', (e, outerConfID: string, innerConfID: string, newValue: any) =>{

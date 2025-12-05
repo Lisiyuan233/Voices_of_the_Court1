@@ -85,6 +85,18 @@
             <hr>
             <div class="row">
               <div class="column">
+                <config-checkbox confID="autoGenerateSuggestions" label="auto generate suggestions"></config-checkbox> <tooltip-text side="top">开启后，将在对话开始时和每轮对话结束后自动生成建议输入语句。When enabled, suggestions will be automatically generated at the start of conversation and after each round of dialogue.</tooltip-text>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="column">
+                <config-checkbox confID="autoSendSuggestion" label="auto send suggestion"></config-checkbox> <tooltip-text side="top">开启后，选择建议选项时会自动发送消息，无需再点击发送按钮。When enabled, selecting a suggestion will automatically send the message without clicking the send button.</tooltip-text>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="column">
                 <config-number confID="summariesInsertDepth" label="Summaries insert depth" min="0" max="20"></config-number>
               </div>
               <div class="column">

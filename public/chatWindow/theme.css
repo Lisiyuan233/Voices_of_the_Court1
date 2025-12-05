@@ -61,7 +61,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .leave-button:active {
-    transform: translateX(-50%) scale(0.5);
+    /* 移除点击缩小效果 */
 }
 
 /* 中式UI主题 - 输入框和文本显示框样式 */
@@ -245,4 +245,17 @@ body.theme-chinese .chat-box {
 .theme-chinese .suggestion-item:hover {
     opacity: 0.9;
     transform: scale(1.02);
+}
+
+/* 中式UI主题 + 自动发送建议功能 - 建议选项居中显示 */
+.theme-chinese.auto-send-suggestions .suggestions-container {
+    width: 60%; /* 增加窗口宽度 */
+    margin-left: 40%; /* 设置左边距使容器居中 */
+    margin-bottom: 10%; /* 保持底部边缘 */
+}
+
+/* 中式UI主题 + 自动发送建议功能 - 显示建议按钮靠左侧显示 */
+.theme-chinese.auto-send-suggestions .suggestions-button {
+    right: auto; /* 取消右对齐 */
+    left: 6%; /* 设置左边距为5% */
 }
