@@ -250,12 +250,12 @@ body.theme-chinese .chat-box {
 /* 中式UI主题 + 自动发送建议功能 - 建议选项居中显示 */
 .theme-chinese.auto-send-suggestions .suggestions-container {
     width: 60%; /* 增加窗口宽度 */
-    margin-left: 40%; /* 设置左边距使容器居中 */
+    margin-left: 50%; /* 设置左边距使容器居中 */
     margin-bottom: 10%; /* 保持底部边缘 */
 }
 
 /* 中式UI主题 + 自动发送建议功能 - 显示建议按钮靠左侧显示 */
 .theme-chinese.auto-send-suggestions .suggestions-button {
     right: auto; /* 取消右对齐 */
-    left: 6%; /* 设置左边距为5% */
+    left: 6.2%; /* 设置左边距为5% */
 }
