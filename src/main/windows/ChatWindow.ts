@@ -15,6 +15,8 @@ export class ChatWindow{
     constructor(){
         this.window = new BrowserWindow({
             ...OVERLAY_WINDOW_OPTS,
+            fullscreenable: false, // 禁用全屏支持，避免与游戏窗口冲突
+            transparent: true,
             resizable: false,
             webPreferences: {
             nodeIntegration: true,

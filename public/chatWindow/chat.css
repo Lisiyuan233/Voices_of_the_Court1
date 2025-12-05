@@ -163,8 +163,8 @@ html{
 }
 
 .suggestions-button {
-    background-color: #591919;
-    border: 1px solid #8c2b2b;
+    background-color: #523e1a;
+    border: 1px solid #706b2a;
     border-radius: 2px;
     color: #e0e0e0;
     font-family: 'Gitan', sans-serif;
@@ -176,8 +176,8 @@ html{
 }
 
 .suggestions-button:hover {
-    background-color: #7a2222;
-    border-color: #cca43b;
+    background-color: #2a5270;
+    border-color: #3d85c6;
     color: #fff;
 }
 
