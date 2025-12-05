@@ -2,8 +2,8 @@
 
 /* 字体定义 */
 @font-face {
-    font-family: 'LingDongQiCheChunTang';
-    src: url('../assets/LingDongQiCheChunTang-2.ttf') format('truetype');
+    font-family: 'ZiKuXingQiuFeiYangTi';
+    src: url('../assets/ZiKuXingQiuFeiYangTi-2.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -41,7 +41,7 @@ body.theme-chinese .chat-box {
     padding: 0;
     margin: 0;
     font-size: 0px;
-    font-family: 'LingDongQiCheChunTang', sans-serif;
+    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     position: absolute;
@@ -66,7 +66,7 @@ body.theme-chinese .chat-box {
 
 /* 中式UI主题 - 输入框和文本显示框样式 */
 .theme-chinese .chat-input {
-    border: 1px solid #957c53;
+    border: 2px solid #957c53;
     width: 90%; /* 缩小宽度 */
     margin-left: 5%; /* 居中显示 */
 }
@@ -80,6 +80,8 @@ body.theme-chinese .chat-box {
 .theme-chinese .messages-container {
     width: 90%;
     margin-left: 5%; /* 居中显示 */
+    margin-top: 6%; /* 进一步降低顶部高度 */
+    height: 65%; /* 降低总体高度 */
 }
 
 /* 中式UI主题 - 显示建议按钮样式 */
@@ -100,8 +102,8 @@ body.theme-chinese .chat-box {
     font-size: 0;
     display: inline-block;
     position: absolute;
-    right: 5%; /* 与输入框右对齐 */
-    bottom: 8px; /* 与输入框底部对齐 */
+    right: 6.5%; /* 与输入框右对齐 */
+    bottom: 17.5%; /* 与输入框底部对齐 */
 }
 
 .theme-chinese .suggestions-button:hover {
@@ -110,4 +112,137 @@ body.theme-chinese .chat-box {
 
 .theme-chinese .suggestions-button:active {
     transform: scale(0.95);
+}
+
+/* 中式UI主题 - 建议选项窗口样式 */
+.theme-chinese .suggestions-container {
+    background-color: transparent; /* 透明背景 */
+    border: none; /* 移除边框 */
+    box-shadow: none; /* 移除阴影 */
+    max-height: 400px; /* 增加最大高度 */
+    overflow-y: visible; /* 移除滚动条 */
+    padding: 0;
+    width: 50%; /* 缩小窗口宽度 */
+    margin-left: 5%; /* 设置位置为左侧5% */
+    margin-bottom: 5%; /* 增加底部边缘1% */
+}
+/* 隐藏推荐输入语句标题块 */
+.theme-chinese .suggestions-header {
+    display: none; /* 完全隐藏标题块 */
+}
+
+/* 中式UI主题 - 每个建议选项使用不同的气泡背景 */
+.theme-chinese .suggestion-item:nth-child(1) {
+    background-image: url(../assets/气泡1.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 20px 16px; /* 增加上下内边距 */
+    margin: 8px 0; /* 增加上下外边距 */
+    color: #957c53; /* 白色文字 */
+    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-weight: bold;
+    font-size: 23px; /* 增大字号 */
+    line-height: 1.6; /* 调整行高 */
+    text-align: center; /* 文字居中显示 */
+    min-height: 60px; /* 设置最小高度 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.theme-chinese .suggestion-item:nth-child(2) {
+    background-image: url(../assets/气泡2.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 20px 16px; /* 增加上下内边距 */
+    margin: 8px 0; /* 增加上下外边距 */
+    color: #957c53; /* 白色文字 */
+    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-weight: bold;
+    font-size: 23px; /* 增大字号 */
+    line-height: 1.6; /* 调整行高 */
+    text-align: center; /* 文字居中显示 */
+    min-height: 60px; /* 设置最小高度 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.theme-chinese .suggestion-item:nth-child(3) {
+    background-image: url(../assets/气泡3.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 20px 16px; /* 增加上下内边距 */
+    margin: 8px 0; /* 增加上下外边距 */
+    color: #957c53; /* 白色文字 */
+    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-weight: bold;
+    font-size: 23px; /* 增大字号 */
+    line-height: 1.6; /* 调整行高 */
+    text-align: center; /* 文字居中显示 */
+    min-height: 60px; /* 设置最小高度 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.theme-chinese .suggestion-item:nth-child(4) {
+    background-image: url(../assets/气泡4.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 20px 16px; /* 增加上下内边距 */
+    margin: 8px 0; /* 增加上下外边距 */
+    color: #957c53; /* 白色文字 */
+    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-weight: bold;
+    font-size: 23px; /* 增大字号 */
+    line-height: 1.6; /* 调整行高 */
+    text-align: center; /* 文字居中显示 */
+    min-height: 60px; /* 设置最小高度 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.theme-chinese .suggestion-item:nth-child(5) {
+    background-image: url(../assets/气泡5.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 20px 16px; /* 增加上下内边距 */
+    margin: 8px 0; /* 增加上下外边距 */
+    color: #957c53; /* 白色文字 */
+    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-weight: bold;
+    font-size: 23px; /* 增大字号 */
+    line-height: 1.6; /* 调整行高 */
+    text-align: center; /* 文字居中显示 */
+    min-height: 60px; /* 设置最小高度 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.theme-chinese .suggestion-item:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
 }
