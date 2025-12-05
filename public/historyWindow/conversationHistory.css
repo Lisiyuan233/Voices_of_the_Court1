@@ -1,4 +1,13 @@
 /* 历史对话查看器样式 */
+@font-face {
+    font-family: Paradox;
+    src: url("../assets/Paradox_King_Script.otf");
+}
+@font-face {
+    font-family: Gitan;
+    src: url("../assets/GitanLatin-Regular.otf");
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,9 +15,11 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Gitan', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-image: url('../assets/background_area_light.png');
     background-color: #1a1a1a;
     color: #e0e0e0;
+    cursor: url('../assets/cursor.png'), auto;
 }
 
 .container {
@@ -24,9 +35,10 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background-color: #2c3e50;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #2b2b2b;
+    border-bottom: 2px solid #5a4a35;
+    color: #cca43b;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 .header h1 {
@@ -42,29 +54,39 @@ body {
 /* 按钮样式 */
 .btn {
     padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
+    border: 1px solid #8c2b2b;
+    border-radius: 2px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s;
+    font-family: 'Gitan', sans-serif;
+    transition: all 0.2s;
+    background-color: #591919;
+    color: #e0e0e0;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
+
+.btn:hover {
+    background-color: #7a2222;
+    border-color: #cca43b;
+    color: #fff;
+    box-shadow: 0 0 5px rgba(204, 164, 59, 0.2);
 }
 
 .btn-primary {
-    background-color: #3498db;
-    color: white;
+    background-color: #591919;
 }
 
 .btn-primary:hover {
-    background-color: #2980b9;
+    background-color: #7a2222;
 }
 
 .btn-secondary {
-    background-color: #95a5a6;
-    color: white;
+    background-color: #3d2e1e;
+    border-color: #5a4a35;
 }
 
 .btn-secondary:hover {
-    background-color: #7f8c8d;
+    background-color: #4e3b26;
 }
 
 /* 主内容区域 */
@@ -79,8 +101,8 @@ body {
     display: flex;
     flex-direction: column;
     padding: 15px;
-    background-color: #2d2d2d;
-    border-bottom: 1px solid #444;
+    background-color: rgba(45, 45, 45, 0.8);
+    border-bottom: 2px solid #5a4a35;
 }
 
 .info-item {
@@ -97,17 +119,24 @@ body {
 .info-item input {
     flex: 1;
     padding: 8px;
-    border: 1px solid #444;
-    border-radius: 4px;
-    background-color: #3a3a3a;
+    border: 1px solid #5a4a35;
+    border-radius: 2px;
+    background-color: #1a1a1a;
     color: #e0e0e0;
+    font-family: 'Gitan', sans-serif;
+}
+
+.info-item input:focus {
+    border-color: #cca43b;
+    outline: none;
+    box-shadow: 0 0 5px rgba(204, 164, 59, 0.3);
 }
 
 /* 对话列表容器 */
 .conversation-list-container {
     width: 300px;
-    background-color: #2d2d2d;
-    border-right: 1px solid #444;
+    background-color: rgba(45, 45, 45, 0.8);
+    border-right: 2px solid #5a4a35;
     display: flex;
     flex-direction: column;
 }
@@ -115,8 +144,9 @@ body {
 .conversation-list-container h2 {
     padding: 15px;
     font-size: 18px;
-    border-bottom: 1px solid #444;
-    background-color: #383838;
+    border-bottom: 2px solid #5a4a35;
+    background-color: #2b2b2b;
+    color: #cca43b;
 }
 
 .conversation-list {
@@ -128,21 +158,22 @@ body {
 .conversation-item {
     padding: 12px 15px;
     margin-bottom: 8px;
-    border-radius: 4px;
+    border-radius: 2px;
     cursor: pointer;
-    transition: background-color 0.2s;
-    border: 1px solid #444;
-    background-color: #3a3a3a;
+    transition: all 0.2s;
+    border: 1px solid #5a4a35;
+    background-color: #1a1a1a;
 }
 
 .conversation-item:hover {
-    background-color: #4a4a4a;
+    background-color: #3d2e1e;
+    border-color: #cca43b;
 }
 
 .conversation-item.selected {
-    background-color: #3498db;
-    color: white;
-    border-color: #2980b9;
+    background-color: #591919;
+    color: #ffd700;
+    border-color: #cca43b;
 }
 
 .conversation-item .file-name {
@@ -164,20 +195,21 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: #2d2d2d;
+    background-color: rgba(45, 45, 45, 0.6);
 }
 
 .conversation-viewer h2 {
     padding: 15px;
     font-size: 18px;
-    border-bottom: 1px solid #444;
-    background-color: #383838;
+    border-bottom: 2px solid #5a4a35;
+    background-color: #2b2b2b;
+    color: #cca43b;
 }
 
 .conversation-info {
     padding: 15px;
-    border-bottom: 1px solid #444;
-    background-color: #383838;
+    border-bottom: 2px solid #5a4a35;
+    background-color: #2b2b2b;
 }
 
 .conversation-content {
@@ -187,16 +219,17 @@ body {
 }
 
 #conversationText {
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'Gitan', 'Consolas', 'Monaco', monospace;
     white-space: pre-wrap;
     word-wrap: break-word;
     line-height: 1.5;
-    background-color: #3a3a3a;
+    background-color: rgba(26, 26, 26, 0.9);
     padding: 15px;
-    border-radius: 4px;
-    border: 1px solid #444;
+    border-radius: 2px;
+    border: 1px solid #5a4a35;
     min-height: 100%;
     color: #e0e0e0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
 /* 状态消息 */
