@@ -219,12 +219,39 @@ input[type=checkbox]{
 
 /* actions page */
 
-#actions-descriptor{
-  height: 100%;
-  width: 100%;
-  margin-left: 10vw;
-  min-height: 100vh;
-  min-width: 100vw;
+#action-descriptor{
+  position: sticky;
+  top: 5rem;
+  height: fit-content;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  background-color: rgba(37, 37, 38, 0.9);
+  border: 2px solid #5a4a35;
+  border-radius: 4px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+#action-descriptor h3 {
+  margin-top: 0;
+  color: #cca43b;
+  border-bottom: 1px solid #5a4a35;
+  padding-bottom: 8px;
+}
+
+#action-descriptor ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#action-descriptor li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+#action-descriptor li b {
+  color: #b8860b;
 }
 
 li.action-item:not(:last-child) { 

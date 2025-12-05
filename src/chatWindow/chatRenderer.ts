@@ -11,6 +11,14 @@ const sanitizeConfig = {
 
 hideChat();
 
+// 初始化主题
+function initTheme() {
+    const savedTheme = localStorage.getItem('selectedTheme') || 'chinese';
+    document.body.classList.add(`theme-${savedTheme}`);
+}
+
+// 页面加载时初始化主题
+initTheme();
 
 let chatMessages: HTMLDivElement = document.querySelector('.messages')!;
 let chatInput: HTMLInputElement= document.querySelector('.chat-input')!;
@@ -197,6 +205,13 @@ leaveButton.addEventListener("click", ()=>{
     chatMessages.innerHTML = '';
     chatInput.innerHTML = '';
     ipcRenderer.send('chat-stop');
+});
+
+// 监听主题更新事件
+ipcRenderer.on('update-theme', (event, theme: string) => {
+    document.body.classList.remove('theme-original', 'theme-chinese');
+    document.body.classList.add(`theme-${theme}`);
+    localStorage.setItem('selectedTheme', theme);
 });
 
     // 推荐输入语句功能事件处理

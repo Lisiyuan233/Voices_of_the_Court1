@@ -1,0 +1,76 @@
+/* 主题样式定义 */
+
+/* 中式UI主题 - 设置聊天窗口背景 */
+body.theme-chinese {
+    background-image: url(../assets/背景.png);
+    background-size: 100% 100%; /* 拉伸填充 */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* 中式UI主题下聊天框的背景 */
+body.theme-chinese .chat-box {
+    background-image: url(../assets/背景.png);
+    background-size: 100% 100%; /* 拉伸填充 */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent; /* 移除原有的背景色 */
+}
+
+/* 中式UI主题 - 使用当前的图像按钮样式 */
+.theme-chinese .leave-button {
+    background: transparent;
+    color: transparent;
+    border: none;
+    width: 180px;
+    height: 90px;
+    background-image: url(../assets/按钮2.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: url('../assets/cursor.png'), auto;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin: 0;
+    font-size: 0;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+.theme-chinese .leave-button:hover {
+    background-image: url(../assets/按钮1.png);
+}
+
+.theme-chinese .leave-button:active {
+    transform: translateX(-50%) scale(0.5);
+}
+
+/* 中式UI主题 - 显示建议按钮样式 */
+.theme-chinese .suggestions-button {
+    background: transparent;
+    color: transparent;
+    border: none;
+    width: 80px;
+    height: 30px;
+    background-image: url(../assets/显示建议按钮.png);
+    background-size: 100% 100%; /* 拉伸填充 */
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: url('../assets/cursor.png'), auto;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin: 0;
+    font-size: 0;
+    display: inline-block;
+}
+
+.theme-chinese .suggestions-button:hover {
+    opacity: 0.8;
+}
+
+.theme-chinese .suggestions-button:active {
+    transform: scale(0.95);
+}

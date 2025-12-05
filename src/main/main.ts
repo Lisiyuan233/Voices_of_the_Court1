@@ -767,3 +767,12 @@ ipcMain.on('close-summary-manager', () => {
         console.log('Summary manager window closed.');
     }
 });
+
+// 处理主题切换事件
+ipcMain.on('theme-changed', (event, theme: string) => {
+    console.log(`IPC: Received theme-changed event. Theme: ${theme}`);
+    // 通知聊天窗口更新主题
+    if (chatWindow && chatWindow.window && !chatWindow.window.isDestroyed()) {
+        chatWindow.window.webContents.send('update-theme', theme);
+    }
+});

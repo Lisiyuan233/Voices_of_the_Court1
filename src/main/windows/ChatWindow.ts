@@ -18,6 +18,8 @@ export class ChatWindow{
             fullscreenable: false, // 禁用全屏支持，避免与游戏窗口冲突
             transparent: true,
             resizable: false,
+            width: 650,
+            height: 800,
             webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
