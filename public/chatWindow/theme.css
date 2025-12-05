@@ -2,8 +2,8 @@
 
 /* 字体定义 */
 @font-face {
-    font-family: 'ZiKuXingQiuFeiYangTi';
-    src: url('../assets/ZiKuXingQiuFeiYangTi-2.ttf') format('truetype');
+    font-family: 'SiYuanSongTiRegular';
+    src: url('../assets/SiYuanSongTiRegular/SourceHanSerifCN-Heavy-4.otf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -41,7 +41,7 @@ body.theme-chinese .chat-box {
     padding: 0;
     margin: 0;
     font-size: 0px;
-    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-family: 'SiYuanSongTiRegularSiYuanSongTiRegular', sans-serif;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     position: absolute;
@@ -143,7 +143,7 @@ body.theme-chinese .chat-box {
     padding: 20px 16px; /* 增加上下内边距 */
     margin: 8px 0; /* 增加上下外边距 */
     color: #957c53; /* 白色文字 */
-    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-family: 'SiYuanSongTiRegular', sans-serif;
     font-weight: bold;
     font-size: 23px; /* 增大字号 */
     line-height: 1.6; /* 调整行高 */
@@ -165,7 +165,7 @@ body.theme-chinese .chat-box {
     padding: 20px 16px; /* 增加上下内边距 */
     margin: 8px 0; /* 增加上下外边距 */
     color: #957c53; /* 白色文字 */
-    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-family: 'SiYuanSongTiRegular', sans-serif;
     font-weight: bold;
     font-size: 23px; /* 增大字号 */
     line-height: 1.6; /* 调整行高 */
@@ -187,7 +187,7 @@ body.theme-chinese .chat-box {
     padding: 20px 16px; /* 增加上下内边距 */
     margin: 8px 0; /* 增加上下外边距 */
     color: #957c53; /* 白色文字 */
-    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-family: 'SiYuanSongTiRegular', sans-serif;
     font-weight: bold;
     font-size: 23px; /* 增大字号 */
     line-height: 1.6; /* 调整行高 */
@@ -209,7 +209,7 @@ body.theme-chinese .chat-box {
     padding: 20px 16px; /* 增加上下内边距 */
     margin: 8px 0; /* 增加上下外边距 */
     color: #957c53; /* 白色文字 */
-    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-family: 'SiYuanSongTiRegular', sans-serif;
     font-weight: bold;
     font-size: 23px; /* 增大字号 */
     line-height: 1.6; /* 调整行高 */
@@ -231,7 +231,7 @@ body.theme-chinese .chat-box {
     padding: 20px 16px; /* 增加上下内边距 */
     margin: 8px 0; /* 增加上下外边距 */
     color: #957c53; /* 白色文字 */
-    font-family: 'ZiKuXingQiuFeiYangTi', sans-serif;
+    font-family: 'SiYuanSongTiRegular', sans-serif;
     font-weight: bold;
     font-size: 23px; /* 增大字号 */
     line-height: 1.6; /* 调整行高 */

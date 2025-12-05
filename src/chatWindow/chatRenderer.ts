@@ -177,11 +177,13 @@ function displaySuggestions(suggestions: string[]) {
             
             // 点击推荐语句时，将其填入输入框
             suggestionItem.addEventListener('click', () => {
-                // 处理建议文本：移除引号和前面的序号
+                // 处理建议文本：移除引号、前面的序号以及结尾的括号内容
                 let processedText = suggestion
-                    .replace(/^["'"]/, '') // 移除开头的引号
-                    .replace(/["'"]$/, '') // 移除结尾的引号
-                    .replace(/^\d+\.\s*/, ''); // 移除开头的序号（如"1. "）
+                    .replace(/^\d+\.\s*/, '') // 移除开头的序号（如"1. "）
+                    .replace(/（[^）]*）$/, '') // 移除结尾的中文括号及其内容
+                    .replace(/\([^)]*\)$/, '') // 移除结尾的英文括号及其内容
+                    .replace(/^[""]/g, '') // 移除开头的引号
+                    .replace(/[""]$/g, ''); // 移除结尾的引号
                 
                 chatInput.value = processedText
                 suggestionsContainer.style.display = 'none'
