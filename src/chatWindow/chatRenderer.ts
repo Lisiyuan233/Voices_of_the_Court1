@@ -226,6 +226,10 @@ leaveButton.addEventListener("click", ()=>{
     hideChat();
     chatMessages.innerHTML = '';
     chatInput.innerHTML = '';
+    // 关闭建议选项框
+    if (suggestionsContainer) {
+        suggestionsContainer.style.display = 'none';
+    }
     ipcRenderer.send('chat-stop');
 });
 
