@@ -10,7 +10,7 @@
 
 /* 中式UI主题 - 设置聊天窗口背景 */
 body.theme-chinese {
-    background-image: url(../assets/背景.png);
+    background-image: url(../assets/background.png);
     background-size: 100% 100%; /* 拉伸填充 */
     background-repeat: no-repeat;
     background-position: center;
@@ -18,7 +18,7 @@ body.theme-chinese {
 
 /* 中式UI主题下聊天框的背景 */
 body.theme-chinese .chat-box {
-    background-image: url(../assets/背景2.png);
+    background-image: url(../assets/background2.png);
     background-size: 100% 100%; /* 拉伸填充 */
     background-repeat: no-repeat;
     background-position: center;
@@ -32,7 +32,7 @@ body.theme-chinese .chat-box {
     border: none;
     width: 180px;
     height: 90px;
-    background-image: url(../assets/按钮4.png);
+    background-image: url(../assets/button4.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -54,7 +54,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .leave-button:hover {
-    background-image: url(../assets/按钮3.png);
+    background-image: url(../assets/button3.png);
     color: #ffffff;
     box-shadow: none;
     filter: none;
@@ -91,7 +91,7 @@ body.theme-chinese .chat-box {
     border: none;
     width: 80px;
     height: 30px;
-    background-image: url(../assets/显示建议按钮.png);
+    background-image: url(../assets/suggestions_button.png);
     background-size: 100% 100%; /* 拉伸填充 */
     background-repeat: no-repeat;
     background-position: center;
@@ -133,7 +133,7 @@ body.theme-chinese .chat-box {
 
 /* 中式UI主题 - 每个建议选项使用不同的气泡背景 */
 .theme-chinese .suggestion-item:nth-child(1) {
-    background-image: url(../assets/气泡1.png);
+    background-image: url(../assets/xuanxiang1.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -155,7 +155,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .suggestion-item:nth-child(2) {
-    background-image: url(../assets/气泡2.png);
+    background-image: url(../assets/xuanxiang2.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -177,7 +177,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .suggestion-item:nth-child(3) {
-    background-image: url(../assets/气泡3.png);
+    background-image: url(../assets/xuanxiang3.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -199,7 +199,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .suggestion-item:nth-child(4) {
-    background-image: url(../assets/气泡4.png);
+    background-image: url(../assets/xuanxiang4.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -221,7 +221,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .suggestion-item:nth-child(5) {
-    background-image: url(../assets/气泡5.png);
+    background-image: url(../assets/xuanxiang5.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
