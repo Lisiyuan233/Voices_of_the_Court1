@@ -30,11 +30,13 @@ function applyTheme(theme: string) {
     // 应用到当前窗口
     const currentWindow = document.querySelector('body');
     if (currentWindow) {
-        currentWindow.classList.remove('theme-original', 'theme-chinese');
+        currentWindow.classList.remove('theme-original', 'theme-chinese', 'theme-west');
         if (theme === 'original') {
             currentWindow.classList.add('theme-original');
         } else if (theme === 'chinese') {
             currentWindow.classList.add('theme-chinese');
+        } else if (theme === 'west') {
+            currentWindow.classList.add('theme-west');
         }
     }
     

@@ -236,8 +236,9 @@ leaveButton.addEventListener("click", ()=>{
 // 更新建议容器样式的函数
 function updateSuggestionsContainerStyle() {
     const isChineseTheme = document.body.classList.contains('theme-chinese');
+    const isWestTheme = document.body.classList.contains('theme-west');
     
-    if (isChineseTheme && autoSendSuggestion) {
+    if ((isChineseTheme || isWestTheme) && autoSendSuggestion) {
         document.body.classList.add('auto-send-suggestions');
     } else {
         document.body.classList.remove('auto-send-suggestions');
@@ -246,7 +247,7 @@ function updateSuggestionsContainerStyle() {
 
 // 监听主题更新事件
 ipcRenderer.on('update-theme', (event, theme: string) => {
-    document.body.classList.remove('theme-original', 'theme-chinese');
+    document.body.classList.remove('theme-original', 'theme-chinese', 'theme-west');
     document.body.classList.add(`theme-${theme}`);
     localStorage.setItem('selectedTheme', theme);
     

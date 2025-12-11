@@ -259,3 +259,111 @@ body.theme-chinese .chat-box {
     right: auto; /* 取消右对齐 */
     left: 6.2%; /* 设置左边距为5% */
 }
+
+/* WestUI主题 - 设置聊天窗口背景 */
+body.theme-west {
+    background-image: url(../assets/background_east1.png);
+    background-size: 100% 100%; /* 拉伸填充 */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* WestUI主题下聊天框的背景 */
+body.theme-west .chat-box {
+    background-image: url(../assets/background_east1.png);
+    background-size: 100% 100%; /* 拉伸填充 */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent; /* 移除原有的背景色 */
+}
+
+/* WestUI主题 - 使用当前的图像按钮样式 */
+.theme-west .leave-button {
+    background: transparent;
+    color: #ffffff;
+    border: none;
+    width: 180px;
+    height: 90px;
+    background-image: url(../assets/button4.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: url('../assets/cursor.png'), auto;
+    transition: background-image 0.3s ease;
+    padding: 0;
+    margin: 0;
+    font-size: 0px;
+    font-family: 'Gitan', sans-serif;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    position: absolute;
+    bottom: 30px; /* 稍微上移 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    box-shadow: none;
+    filter: none;
+}
+
+.theme-west .leave-button:hover {
+    background-image: url(../assets/button3.png);
+    color: #ffffff;
+    box-shadow: none;
+    filter: none;
+}
+
+.theme-west .leave-button:active {
+    /* 移除点击缩小效果 */
+    transform: none;
+}
+
+
+/* WestUI主题 - 输入框和文本显示框样式 */
+.theme-west .chat-input {
+    border: 2px solid #957c53;
+    width: 90%; /* 缩小宽度 */
+    margin-left: 5%; /* 居中显示 */
+}
+
+.theme-west .chat-input:focus {
+    border-color: #957c53;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 0 5px rgba(149, 124, 83, 0.3);
+}
+
+/* 缩小文本显示框宽度 */
+.theme-west .messages-container {
+    width: 90%;
+    margin-left: 5%; /* 居中显示 */
+    margin-top: 6%; /* 进一步降低顶部高度 */
+    height: 65%; /* 降低总体高度 */
+}
+
+/* WestUI主题 - 显示建议按钮样式 */
+.theme-west .suggestions-button {
+    background: transparent;
+    color: transparent;
+    border: none;
+    width: 80px;
+    height: 30px;
+    background-image: url(../assets/suggestion_button_east.png);
+    background-size: 100% 100%; /* 拉伸填充 */
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: url('../assets/cursor.png'), auto;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin: 0;
+    font-size: 0;
+    display: inline-block;
+    position: absolute;
+    right: 6.5%; /* 与输入框右对齐 */
+    bottom: 17.5%; /* 与输入框底部对齐 */
+}
+
+.theme-west .suggestions-button:hover {
+    opacity: 0.8;
+}
+
+.theme-west .suggestions-button:active {
+    transform: scale(0.95);
+}
