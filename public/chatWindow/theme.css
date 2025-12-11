@@ -111,7 +111,7 @@ body.theme-chinese .chat-box {
 }
 
 .theme-chinese .suggestions-button:active {
-    transform: scale(0.95);
+    /* 移除点击移动效果 */
 }
 
 /* 中式UI主题 - 建议选项窗口样式 */
@@ -275,6 +275,7 @@ body.theme-west .chat-box {
     background-repeat: no-repeat;
     background-position: center;
     background-color: transparent; /* 移除原有的背景色 */
+    width: 31%; /* 调整宽度为31% */
 }
 
 /* WestUI主题 - 使用当前的图像按钮样式 */
@@ -284,7 +285,7 @@ body.theme-west .chat-box {
     border: none;
     width: 180px;
     height: 90px;
-    background-image: url(../assets/button4.png);
+    background-image: url(../assets/leave_button_west.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -306,7 +307,7 @@ body.theme-west .chat-box {
 }
 
 .theme-west .leave-button:hover {
-    background-image: url(../assets/button3.png);
+    background-image: url(../assets/leave_button_west1.png);
     color: #ffffff;
     box-shadow: none;
     filter: none;
@@ -365,5 +366,5 @@ body.theme-west .chat-box {
 }
 
 .theme-west .suggestions-button:active {
-    transform: scale(0.95);
+    /* 移除点击移动效果 */
 }

@@ -223,9 +223,7 @@ html{
     align-self: flex-end;
 }
 
-.leave-button:active {
-    transform: translateX(-50%) scale(0.9);
-}
+
 
 .chat-input::-webkit-scrollbar{
     display: none;
