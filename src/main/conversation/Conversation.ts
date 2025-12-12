@@ -771,7 +771,7 @@ ${conversationHistory}
         const prompt: Message[] = [
             {
                 role: "system",
-                content: `请扮演角色${character.fullName}写下一条发言，角色信息：
+                content: `请扮演角色${character.fullName}写下一条发言，使用markdown格式，用斜体表示动作，角色信息：
 - 姓名：${character.fullName}
 - 名称：${character.shortName}
 - 身份/头衔：${character.primaryTitle}
