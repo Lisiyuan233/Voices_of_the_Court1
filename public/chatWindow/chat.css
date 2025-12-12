@@ -222,7 +222,9 @@ html{
     transition: background-color 0.2s;
     align-self: flex-end;
 }
-
+.leave-button:active {
+    transform: translateX(-50%) scale(0.9);
+}
 
 
 .chat-input::-webkit-scrollbar{
