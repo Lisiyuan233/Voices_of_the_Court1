@@ -356,7 +356,7 @@ body.theme-west .chat-box {
     font-size: 0;
     display: inline-block;
     position: absolute;
-    right: 6.5%; /* 与输入框右对齐 */
+    right: 8.1%; /* 与输入框右对齐 */
     bottom: 17.5%; /* 与输入框底部对齐 */
 }
 
@@ -511,6 +511,6 @@ body.theme-west .chat-box {
 /* WestUI主题 + 自动发送建议功能 - 显示建议按钮靠左侧显示 */
 .theme-west.auto-send-suggestions .suggestions-button {
     right: auto; /* 取消右对齐 */
-    left: 6.2%; /* 设置左边距为5% */
+    left: 8.1%; /* 设置左边距为5% */
 }
 
